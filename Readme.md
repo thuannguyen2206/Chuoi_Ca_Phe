@@ -1,5 +1,6 @@
 # Norda shop using .Net core 3.1
 ### Author: Nguyen Nhat Thuan
+### Instructor: Vu Dinh Long
 
 ## Tools
 - Visual Studio 2019
