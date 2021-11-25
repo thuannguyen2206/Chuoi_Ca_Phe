@@ -1,0 +1,87 @@
+﻿@using NordaShop.Admin.Models.User
+@model UserEditViewModel
+
+@{
+    ViewData["Title"] = "MyProfile";
+    ViewData["PageName"] = "forms-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="subtitle-block">
+    <h3 class="subtitle"> Profile của tôi </h3>
+</div>
+<section class="section">
+    <div class="row sameheight-container">
+        <div class="col-md-12">
+            <div class="card card-block sameheight-item">
+                <div class="title-block">
+                    <h3 class="title"> Thông tin </h3>
+                </div>
+                <form role="form" asp-action="MyProfile" asp-controller="User" method="post" enctype="multipart/form-data">
+                    <div class="form-group has-success">
+                        <div class="row">
+                            <div class="col-sm-6 form-group has-success">
+                                <label class="control-label">Họ</label>
+                                <input type="text" asp-for="LastName" class="form-control underlined">
+                                <span asp-validation-for="LastName" class="has-success text-danger"></span>
+                            </div>
+                            <div class="col-sm-6 form-group has-success">
+                                <label class="control-label">Tên </label>
+                                <input type="text" asp-for="FirstName" class="form-control underlined">
+                                <span asp-validation-for="FirstName" class="has-success text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group has-success">
+                        <label class="control-label">Tên đăng nhập</label>
+                        @if (Model.Username.Trim().ToLower().Equals("admin"))
+                        {
+                            <input type="text" asp-for="Username" class="form-control underlined" readonly>
+                        }
+                        else
+                        {
+                            <input type="text" asp-for="Username" class="form-control underlined">
+                        }
+                        <span asp-validation-for="Username" class="has-success text-danger"></span>
+                    </div>
+                    <div class="form-group has-success">
+                        <label class="control-label">Email</label>
+                        <input type="email" asp-for="Email" class="form-control underlined" readonly>
+                        <span asp-validation-for="Email" class="has-success text-danger"></span>
+                    </div>
+                    <div class="form-group has-success">
+                        <label class="control-label">Số điện thoại</label>
+                        <input type="tel" asp-for="PhoneNumber" class="form-control underlined">
+                        <span asp-validation-for="PhoneNumber" class="has-success text-danger"></span>
+                    </div>
+                    <div class="form-group has-success">
+                        <label class="control-label">Địa chỉ</label>
+                        <input type="text" asp-for="Address" class="form-control underlined">
+                        <span asp-validation-for="Address" class="has-success text-danger"></span>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-4 form-group has-success">
+                            <label class="control-label">Mật khẩu hiện tại</label>
+                            <input type="password" asp-for="CurrentPassword" class="form-control underlined">
+                            <span asp-validation-for="CurrentPassword" class="has-success text-danger"></span>
+                        </div>
+                        <div class="col-sm-4 form-group has-success">
+                            <label class="control-label">Mật khẩu mới</label>
+                            <input type="password" asp-for="NewPassword" class="form-control underlined">
+                            <span asp-validation-for="NewPassword" class="has-success text-danger"></span>
+                        </div>
+                        <div class="col-sm-4 form-group has-success">
+                            <label class="control-label">Xác nhận mật khẩu</label>
+                            <input type="password" asp-for="ConfirmPassword" class="form-control underlined">
+                            <span asp-validation-for="ConfirmPassword" class="has-success text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top:40px;">
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+

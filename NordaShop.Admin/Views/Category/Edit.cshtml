@@ -1,0 +1,89 @@
+﻿@using NordaShop.Admin.Models.Category
+@model CategoryCEViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+    ViewData["PageName"] = "forms-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@section Scripts{
+    <script src="~/plugins/ckeditor5-build-classic/ckeditor.js"></script>
+    <script>
+        $(document).ready(function () {
+            // CK Editor
+            ClassicEditor
+                .create(document.querySelector('#txtDescription'))
+                .catch(error => {
+                    console.error(error);
+                });
+        });
+    </script>
+}
+<div class="title-block">
+    <h1 class="title"> Cập nhật danh mục </h1>
+</div>
+<div class="col-md-12">
+    <div class="card card-block sameheight-item">
+        <form asp-action="Edit" asp-controller="Category" method="post" enctype="multipart/form-data">
+            <div class="form-group has-success" hidden>
+                <label class="control-label">Id</label>
+                <input type="text" asp-for="Id" class="form-control underlined">
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Tên danh mục</label>
+                <input type="text" asp-for="Name" class="form-control underlined">
+                <span asp-validation-for="Name" class="has-success text-danger"></span>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Tiêu đề</label>
+                <input type="text" asp-for="Title" class="form-control underlined">
+                <span asp-validation-for="Title" class="has-success text-danger"></span>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Seo alias</label>
+                <input type="text" asp-for="SeoAlias" class="form-control underlined">
+                <span asp-validation-for="SeoAlias" class="has-success text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Mô tả</label>
+                <textarea asp-for="Description" id="txtDescription" cols="10" rows="10" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group has-success">
+                <div class="row">
+                    @*<div class="col-sm-6 form-group has-success">
+                            <label class="control-label">Menu</label>
+                            <select asp-items="@ViewBag.Menus" asp-for="MenuId"></select>
+                        </div>*@
+                    <div class="col-sm-6 form-group has-success">
+                        <label class="control-label">Danh mục cha</label>
+                        <select asp-items="@ViewBag.Categories" asp-for="ParentId">
+                            <option value="">Chọn danh mục</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-success">
+                <div class="row">
+                    <div class="col-md-6 form-group has-success">
+                        <label class="control-label">Thứ tự ưu tiên</label>
+                        <input type="number" asp-for="SortOrder" class="form-control underlined">
+                        <span asp-validation-for="SortOrder" class="has-success text-danger"></span>
+                    </div>
+                    <div class="col-md-6 form-group has-success">
+                        <label>
+                            <input class="checkbox" asp-for="IsActive" type="checkbox">
+                            <span>Kích hoạt</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top:40px;">
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+

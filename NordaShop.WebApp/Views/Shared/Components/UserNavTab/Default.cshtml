@@ -1,0 +1,23 @@
+﻿@using Microsoft.AspNetCore.Http
+@using NordaShop.WebApp.Models.User
+@using Common.Constants
+@inject IHttpContextAccessor _httpContext
+@model DashboardViewModel
+
+@{ 
+    var format = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<div class="tab-pane fade show active" id="dashboad" role="tabpanel">
+    <div class="myaccount-content">
+        <h3>Dashboard</h3>
+        <div class="welcome">
+            <h4>Xin chào, <strong>@(_httpContext.HttpContext.Session.GetString(SystemConstants.Username))</strong></h4>
+        </div>
+        <br />
+        <p>Điểm thưởng tích lũy: <strong>@Model.AccumulatedPoint</strong></p>
+        <p>Tổng số đơn đặt hàng: <strong>@Model.UserTotalOrders</strong></p>
+        <p>Mua hàng tháng này: <strong>@(string.Format(format, "{0:c0}", Model.MonthlyPurchaseCost))</strong></p>
+        <p>Tổng cộng: <strong>@(string.Format(format, "{0:c0}", Model.TotalPurchaseCost))</strong></p>
+    </div>
+</div>

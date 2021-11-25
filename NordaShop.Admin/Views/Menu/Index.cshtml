@@ -1,0 +1,99 @@
+﻿@using NordaShop.Admin.Models.Menu
+@model List<MenuViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+    ViewData["PageName"] = "responsive-tables-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script>
+        $(".example").on("click", ".remove-menu", function () {
+            let cateId = $(this).data("id");
+            if (cateId != null) {
+                swal({
+                    title: `Bạn thực sự muốn xóa?`,
+                    text: "Nếu đã xóa thì sẽ không khôi phục dữ liệu lại được nữa!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((result) => {
+                    if (result) {
+                        window.location.href = `/Menu/Delete/${cateId}`;
+                    }
+                });
+            }
+        });
+    </script>
+}
+
+<div class="title-block">
+    <h1 class="title"> Danh sách menu </h1>
+</div>
+<section class="section">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-block">
+                    <div class="card-title-block">
+                        @*<a asp-action="Create" class="btn btn-pill-left btn-primary" style="float:right;">Tạo mới</a>*@
+                    </div>
+                    @if (Model.Count > 0)
+                    {
+                        <section class="example">
+                            <div class="table-flip-scroll">
+                                <table class="table table-striped table-bordered table-hover flip-content">
+                                    <thead class="flip-header">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Tên</th>
+                                            <th>Link</th>
+                                            <th>Thứ tự hiển thị</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Kích hoạt</th>
+                                            <th></th>
+                                            @*<th></th>*@
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.Count; i++)
+                                        {
+                                            var item = Model[i];
+                                            <tr>
+                                                <td>@(i+1)</td>
+                                                <td>@item.Name</td>
+                                                <td>@item.Link</td>
+                                                <td>@item.DisplayOrder</td>
+                                                <td>@item.DateCreated.ToString("HH:mm dd/MM/yyyy")</td>
+                                                @if (item.IsActive)
+                                                {
+                                                    <td style="text-align:center;color:green;"><i class='fa fa-check form-control-feedback'></i></td>
+                                                }
+                                                else
+                                                {
+                                                    <td style="text-align:center;color:red;"><i class='fa fa-times form-control-feedback'></i></td>
+                                                }
+                                                <td>
+                                                    <a asp-action="Edit" asp-controller="Menu" asp-route-id="@item.Id" title="Edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                                </td>
+                                                @*<td>
+                                                        <a href="#" class="remove-menu" data-id="@item.Id" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                                    </td>*@
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    }
+                    else
+                    {
+                        <h3>Không tìm thấy menu nào</h3>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+

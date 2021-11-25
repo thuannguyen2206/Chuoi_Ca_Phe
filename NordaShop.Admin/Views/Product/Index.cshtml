@@ -1,0 +1,139 @@
+﻿@using NordaShop.Admin.Models.Product
+@using Service.ApiResponse
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration _config
+@model PageResult<List<ProductViewModel>>
+
+@{
+    ViewData["Title"] = "Index";
+    ViewData["PageName"] = "responsive-tables-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var format = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+
+@section Scripts{
+    <script>
+        $(".example").on("click", ".remove-pro", function () {
+            let productId = $(this).data("id");
+            if (productId > 0) {
+                swal({
+                    title: `Bạn thực sự muốn xóa?`,
+                    text: "Nếu đã xóa thì sẽ không khôi phục dữ liệu lại được nữa!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((result) => {
+                    if (result) {
+                        window.location.href = `/Product/Delete/${productId}`;
+                    }
+                });
+            }
+        });
+    </script>
+}
+
+<div class="title-block">
+    <h1 class="title"> Danh sách sản phẩm </h1>
+</div>
+<section class="section">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-block">
+                    <div class="card-title-block">
+                        <form class="form-inline" asp-action="Index" asp-controller="Product" method="get">
+                            <div class="row col-md-12">
+                                <div class="items-search col-md-4">
+                                    <div class="input-group">
+                                        <input type="text" name="keyword" value="@ViewBag.Keyword" class="form-control boxed rounded-s" placeholder="Search for...">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-secondary rounded-s" type="submit">
+                                                <i class="fa fa-search"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <select asp-items="@ViewBag.Brands" name="brandid" onchange="this.form.submit()">
+                                        <option> Chọn thương hiệu </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select asp-items="@ViewBag.Categories" name="categoryid" onchange="this.form.submit()">
+                                        <option> Chọn danh mục </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <a asp-action="Create" class="btn btn-pill-left btn-primary" style="float:right;">Tạo mới</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    @if (Model.Items.Count > 0)
+                    {
+                        <section class="example">
+                            <div class="table-flip-scroll">
+                                <table class="table table-striped table-bordered table-hover flip-content">
+                                    <thead class="flip-header">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Ảnh</th>
+                                            <th>Tên</th>
+                                            <th>Giá</th>
+                                            <th>Thương hiệu</th>
+                                            <th>Danh mục</th>
+                                            <th>Đánh giá</th>
+                                            <th>Kích hoạt</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.Items.Count; i++)
+                                        {
+                                            var product = Model.Items[i];
+                                            <tr>
+                                                <td>@(i+1)</td>
+                                                <td>
+                                                    <label data-id="@product.Id" class="add-image view-all-image" data-toggle="modal" data-target="#modal-media" title="Click to view all images">
+                                                        <img src="@(_config["BaseUri"] + product.DefaultImage)" style="width:70px;height:70px;" atl="" />
+                                                    </label>
+                                                </td>
+                                                <td>@product.Name</td>
+                                                <td>@(string.Format(format, "{0:c0}", product.Price))</td>
+                                                <td>@product.BrandName</td>
+                                                <td>@product.CategoryName</td>
+                                                <td>@product.RatingStar/5</td>
+                                                @if (product.IsActive)
+                                                {
+                                                    <td style="text-align:center;color:green;"><i class='fa fa-check form-control-feedback'></i></td>
+                                                }
+                                                else
+                                                {
+                                                    <td style="text-align:center;color:red;"><i class='fa fa-times form-control-feedback'></i></td>
+                                                }
+                                                <td>
+                                                    <a asp-action="Edit" asp-controller="Product" asp-route-id="@product.Id" title="Edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                                </td>
+                                                <td>
+                                                    <a class="remove-pro" href="#" data-id="@product.Id" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    }
+                    else
+                    {
+                        <h3>Không tìm thấy sản phẩm nào</h3>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@await Component.InvokeAsync("Pager", Model)
+

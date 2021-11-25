@@ -1,0 +1,408 @@
+﻿@using NordaShop.Admin.Models.Home
+@model HomeViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+    ViewData["PageName"] = "dashboard-page";
+    var format = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            //Top product for current month
+            (function () {
+                $.ajax({
+                    url: "/Home/TopMonthSellingProduct",
+                    type: "GET",
+                    success: function (res) {
+                        const chartData = [];
+                        if (res != null && res.length > 0) {
+                            $.each(res, function (index, item) {
+                                chartData.push({
+                                    name: item.name,
+                                    count: item.orderCount
+                                });
+                            });
+
+                            const data = {
+                                labels: [],
+                                datasets: [{
+                                    label: 'Số lượng bán ',
+                                    backgroundColor: 'rgb(133, 206, 54)',
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    data: chartData,
+                                }]
+                            };
+                            const config = {
+                                type: 'bar',
+                                data: data,
+                                options: {
+                                    scales: {
+                                        x: {
+                                            display: false
+                                        },
+                                        y: {
+                                            ticks: {
+                                                beginAtZero: true,
+                                                callback: function (value, index, values) {
+                                                    if (Math.floor(value) === value) {
+                                                        return value;
+                                                    }
+
+                                                },
+                                            }
+                                        }
+                                    },
+                                    parsing: {
+                                        xAxisKey: 'name',
+                                        yAxisKey: 'count'
+                                    }
+                                }
+                            };
+                            const myChart = new Chart(
+                                document.getElementById('top-month-product-chart'),
+                                config
+                            );
+                        }
+                    }
+                });
+            })(jQuery);
+
+            //Top product for all
+            (function () {
+                $.ajax({
+                    url: "/Home/TopAllSellingProduct",
+                    type: "GET",
+                    success: function (res) {
+                        const chartData = [];
+                        if (res != null && res.length > 0) {
+                            $.each(res, function (index, item) {
+                                chartData.push({
+                                    name: item.name,
+                                    count: item.orderCount
+                                });
+                            });
+
+                            const data = {
+                                labels: [],
+                                datasets: [{
+                                    label: 'Số lượng bán ',
+                                    backgroundColor: 'rgb(255, 99, 132)',
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    data: chartData,
+                                }]
+                            };
+                            const config = {
+                                type: 'bar',
+                                data: data,
+                                options: {
+                                    scales: {
+                                        x: {
+                                            display: false
+                                        },
+                                        y: {
+                                            ticks: {
+                                                beginAtZero: true,
+                                                callback: function (value, index, values) {
+                                                    if (Math.floor(value) === value) {
+                                                        return value;
+                                                    }
+
+                                                },
+                                            }
+                                        }
+                                    },
+                                    parsing: {
+                                        xAxisKey: 'name',
+                                        yAxisKey: 'count'
+                                    }
+                                }
+                            };
+                            const myChart = new Chart(
+                                document.getElementById('top-all-product-chart'),
+                                config
+                            );
+                        }
+                    }
+                });
+            })(jQuery);
+
+            function FormatDateTime(time) {
+                let timeConvert = new Date(time);
+                let year = timeConvert.getFullYear().toString().substr(-2);
+                let month = timeConvert.getMonth() + 1;
+                let date = timeConvert.getDate();
+                return date + "/" + month + "/" + year;
+            }
+
+            //Monthly revenue
+            function MonthlyRevenue(from, to) {
+                $.ajax({
+                    url: "/Home/GetRevenueStatistic",
+                    type: "GET",
+                    data: { from: from, to: to },
+                    success: function (res) {
+                        console.log(res);
+                        const revenues = [];
+                        const profits = [];
+                        const labels = [];
+                        if (res != null && res.length > 0) {
+                            $.each(res, function (index, item) {
+                                labels.push(FormatDateTime(item.date));
+                                revenues.push(item.revenue);
+                                profits.push(item.profit);
+                            });
+
+                            const data = {
+                                labels: labels,
+                                datasets: [
+                                    {
+                                        label: 'Doanh thu: ',
+                                        data: revenues,
+                                        borderColor: 'rgb(255, 99, 132)',
+                                        backgroundColor: 'rgb(133, 206, 200)',
+                                    },
+                                    {
+                                        label: 'Lợi nhuận: ',
+                                        data: profits,
+                                        borderColor: 'rgb(255, 99, 132)',
+                                        backgroundColor: 'rgb(133, 206, 54)',
+                                    }
+                                ]
+                            };
+
+                            const config = {
+                                type: 'bar',
+                                data: data,
+                                options: {
+                                    scales: {
+                                        y: {
+                                            ticks: {
+                                                callback: function (value, index, values) {
+                                                    return Utils.CurrencyFormat.format(value);
+                                                }
+                                            }
+                                        }
+                                    },
+                                    responsive: true,
+                                    plugins: {
+                                        legend: {
+                                            position: 'top',
+                                        },
+                                        tooltip: {
+                                            callbacks: {
+                                                label: function (context) {
+                                                    var label = context.dataset.label || '';
+                                                    if (context.parsed.y !== null) {
+                                                        label += Utils.CurrencyFormat.format(context.parsed.y);
+                                                    }
+                                                    return label;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+
+                            const myChart = new Chart(
+                                document.getElementById('chart-revenue-statistic').getContext("2d"),
+                                config
+                            );
+                        }
+                    }
+                });
+            }
+
+            (function () {
+                MonthlyRevenue();
+            })(jQuery);
+
+            $("#from, #to").on("change", function () {
+                let from = $("#from").val();
+                let to = $("#to").val();
+                if (from != "" && to != "" && from <= to) {
+                    $(".graph-area").html("");
+                    $(".graph-area").append('<canvas id="chart-revenue-statistic"></canvas>');
+                    MonthlyRevenue(from, to);
+                }
+            });
+
+            $("#export-revenue-statistics").on("click", function () {
+                let from = $("#from").val();
+                let to = $("#to").val();
+                window.location.href = `/Home/ExportRevenueStatisticToExcel?from=${from}&to=${to}`;
+            });
+            
+            $("#export-website-statistics").on("click", function () {
+                window.location.href = `/Home/ExportWebsiteStatisticToExcel`;
+            });
+
+        });
+    </script>
+}
+
+<section class="section">
+    <div class="row sameheight-container">
+        <div class="col-md-12">
+            <div class="card sameheight-item">
+                <div class="card-block">
+                    <div class="card-title-block">
+                        <h3 class="title"> Xuất báo cáo </h3>
+                    </div>
+                    <section class="section">
+                        @*<button type="button" id="export-all-in-home" class="btn btn-primary-outline">Tất cả</button>*@
+                        <button type="button" id="export-revenue-statistics" class="btn btn-success-outline">Doanh thu</button>
+                        <button type="button" id="export-website-statistics" class="btn btn-info-outline">Thống kê website </button>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="row sameheight-container">
+        <div class="col col-12 col-sm-12 col-md-6 col-xl-6 stats-col">
+            <div class="card sameheight-item stats" data-exclude="xs">
+                <div class="card-block">
+                    <div class="title-block">
+                        <h4 class="title"> Thống kê </h4>
+                        <p class="title-description">
+                            Thống kê thông tin website
+                        </p>
+                    </div>
+                    <div class="row row-sm stats-container">
+                        <div class="col-12 col-sm-6 stat-col">
+                            <div class="stat-icon">
+                                <i class="fa fa-rocket"></i>
+                            </div>
+                            <div class="stat">
+                                <div class="value"> @Model.ActiveProduct </div>
+                                <div class="name"> Sản phẩm </div>
+                            </div>
+                            <div class="progress stat-progress">
+                                <div class="progress-bar" style="width: 75%;"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 stat-col">
+                            <div class="stat-icon">
+                                <i class="fa fa-shopping-cart"></i>
+                            </div>
+                            <div class="stat">
+                                <div class="value"> @Model.ProductSold </div>
+                                <div class="name"> Đã đặt mua </div>
+                            </div>
+                            <div class="progress stat-progress">
+                                <div class="progress-bar" style="width: 25%;"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6  stat-col">
+                            <div class="stat-icon">
+                                <i class="fa fa-line-chart"></i>
+                            </div>
+                            <div class="stat">
+                                <div class="value"> @(string.Format(format, "{0:c0}", Model.MonthlyIncome)) </div>
+                                <div class="name"> Doanh thu tháng </div>
+                            </div>
+                            <div class="progress stat-progress">
+                                <div class="progress-bar" style="width: 60%;"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6  stat-col">
+                            <div class="stat-icon">
+                                <i class="fa fa-users"></i>
+                            </div>
+                            <div class="stat">
+                                <div class="value"> @Model.TotalUsers </div>
+                                <div class="name"> Tài khoản </div>
+                            </div>
+                            <div class="progress stat-progress">
+                                <div class="progress-bar" style="width: 34%;"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6  stat-col">
+                            <div class="stat-icon">
+                                <i class="fa fa-list-alt"></i>
+                            </div>
+                            <div class="stat">
+                                <div class="value"> @Model.TotalOrders </div>
+                                <div class="name"> Đơn hàng </div>
+                            </div>
+                            <div class="progress stat-progress">
+                                <div class="progress-bar" style="width: 49%;"></div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 stat-col">
+                            <div class="stat-icon">
+                                <i class="fa fa-dollar"></i>
+                            </div>
+                            <div class="stat">
+                                <div class="value"> @(string.Format(format, "{0:c0}", Model.TotalIncome)) </div>
+                                <div class="name"> Tổng doanh thu </div>
+                            </div>
+                            <div class="progress stat-progress">
+                                <div class="progress-bar" style="width: 15%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col col-12 col-sm-12 col-md-6 col-xl-6 history-col">
+            <div class="card sameheight-item" data-exclude="xs" id="dashboard-history">
+                <div class="card-header card-header-sm bordered">
+                    <div class="header-block">
+                        <h3 class="title">Top 10 sản phẩm bán chạy nhất</h3>
+                    </div>
+                    <ul class="nav nav-tabs pull-right" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#top-month" role="tab" data-toggle="tab">Tháng hiện tại</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#top-all" role="tab" data-toggle="tab">Tất cả</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-block">
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active fade show" id="top-month">
+                            <canvas id="top-month-product-chart"></canvas>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="top-all">
+                            <canvas id="top-all-product-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="card sameheight-item">
+        <div class="card-header card-header-sm bordered">
+            <div class="header-block">
+                <h3 class="title">
+                    Doanh thu (mặc định 1 tháng)
+                </h3>
+            </div>
+            <ul class="nav nav-tabs pull-right">
+                <li class="nav-item">
+                    <input type="date" id="from" class="form-control" />
+                </li>
+                <li class="m-2"> - </li>
+                <li class="nav-item">
+                    <input type="date" id="to" class="form-control" />
+                </li>
+            </ul>
+        </div>
+        <div class="card-block">
+            <div class="tab-content">
+                <div class="graph-area">
+                    <canvas id="chart-revenue-statistic"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

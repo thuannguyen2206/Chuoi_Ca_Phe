@@ -1,0 +1,103 @@
+﻿@using NordaShop.Admin.Models.Product
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration _config
+@model List<ProductImageViewModel>
+
+
+<ul class="nav nav-tabs modal-tabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" href="#gallery" data-toggle="tab" role="tab">Bộ sưu tập</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#upload" data-toggle="tab" role="tab">Tải lên</a>
+    </li>
+</ul>
+<div class="tab-content modal-tab-content">
+    <div class="tab-pane fade active show" id="gallery" role="tabpanel">
+        <div class="images-container">
+            <div class="row">
+                @foreach (var item in Model ?? Enumerable.Empty<ProductImageViewModel>())
+                {
+                    <div class="col-6 col-sm-4 col-md-4 col-lg-3">
+                        <div class="image-container">
+                            <div class="image" style="background-image:url('@(_config["BaseUri"] + item.ImageLink)')"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade in" id="upload" role="tabpanel">
+        <div class="upload-container">
+            <form id="upload-images-form" asp-action="UploadImage" asp-controller="Product" enctype="multipart/form-data" method="post">
+                <input type="number" name="productid" value="@ViewBag.ProductId" hidden/>
+                <label class="btn btn-primary-outline">
+                    <input type="file" accept=".png, .jpg, .jpeg, .gif" id="pro-upload-images" name="images" style="display:none;" multiple />
+                    Chọn ảnh
+                </label>
+            </form>
+            <div class="images-container"></div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+
+        //Preview upload images
+        $("#upload").on("change", "#pro-upload-images", function () {
+            let input = $(this);
+            if (input[0].files && input[0].files.length > 0) {
+                for (let i = 0; i < input[0].files.length; i++) {
+                    let reader = new FileReader();
+                    $('#upload .images-container').empty();
+                    reader.onload = function (e) {
+                        let html = `<div class="image-container">
+                                        <div class="controls">
+                                            <a href="" class="control-btn move">
+                                                <i class="fa fa-arrows"></i>
+                                            </a>
+                                            <a href="" class="control-btn star">
+                                                <i class="fa"></i>
+                                            </a>
+                                            <a href="#" class="control-btn remove">
+                                                <i class="fa fa-trash-o"></i>
+                                            </a>
+                                        </div>
+                                        <div class="image" style="background-image:url('${e.target.result}')"></div>
+                                    </div>`;
+                        $('#upload .images-container').attr('src', e.target.result);
+                        $('#upload .images-container').append(html);
+                    }
+                    reader.readAsDataURL(input[0].files[i]);
+                }
+            }
+        });
+
+        $("#insert-files").on("click", function () {
+            let files = $("#pro-upload-images")[0].files;
+            if (files && files.length > 0) {
+                $("#upload-images-form").submit();
+            } else {
+                console.log("No any file found");
+            }
+        });
+
+        //Remove image
+        $("#upload .images-container").on("click", ".remove", function () {
+            let item = $(this);
+            let index = item.closest(".image-container").index();
+            let fileList = $("#pro-upload-images")[0].files;
+            let fileArr = Array.from(fileList);
+            item.closest(".image-container").remove();
+            fileArr.splice(index, 1);
+            const dt = new DataTransfer();
+            fileArr.forEach(file => {
+                dt.items.add(file);
+            });
+            $("#pro-upload-images")[0].files = dt.files;
+        });
+
+    });
+</script>

@@ -1,0 +1,49 @@
+﻿
+<style>
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .col {
+        flex: 1 0;
+        margin-left: 1rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        width: auto;
+    }
+
+</style>
+
+<tr>
+    <td align="left"
+        bgcolor="#ffffff"
+        style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+        <p style="color: #3d4852; font-size: 19px; font-weight: bold; margin-top: 0; text-align: center;">
+            ĐƠN ĐẶT HÀNG
+        </p>
+        <br />
+        <p style="margin: 0;color: #3d4852;">Mã đơn hàng: {{Order Code}}</p>
+        <p style="margin: 0;color: #3d4852;">Ngày mua hàng: {{Date Created}}</p>
+        <p style="margin: 0;color: #3d4852;">Trạng thái đơn hàng: {{Order Status}}</p>
+        <p style="margin: 0;color: #3d4852;">Trạng thái thanh toán: {{Is Paid}}</p>
+        <p style="margin: 0;color: #3d4852;">Tên khách hàng: {{User Name}}</p>
+        <p style="margin: 0;color: #3d4852;">Số điện thoại: {{Phone Number}}</p>
+        <p style="margin: 0;color: #3d4852;">Địa chỉ nhận hàng: {{Address}}</p>
+        <p style="margin: 0;color: #3d4852;">Ghi chú địa chỉ: {{Address Option}}</p>
+        <p style="margin: 0;color: #3d4852;">Ghi chú đơn hàng: {{Order Note}}</p>
+        <p style="color: #3d4852; font-size: 16px;">
+            Đơn hàng gồm:
+        </p>
+        <p style="color: #3d4852; font-size: 16px;">
+            <ul style="list-style-type: decimal">
+                {{Order Items}}
+            </ul>
+        </p>
+        <hr />
+        <h4>Thành tiền: {{SubPrice}}</h4>
+        <h4>Phí vận chuyển: {{Shipping Fee}}</h4>
+        <h4>Giảm giá: {{Discount Price}}</h4>
+        <h3><span style="color:red;">Tổng cộng: </span> {{Total Price}}</h3>
+    </td>
+</tr>

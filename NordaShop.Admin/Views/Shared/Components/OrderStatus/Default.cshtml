@@ -1,0 +1,29 @@
+﻿@using DataAccess.Enums
+@using Common.Helper
+@using NordaShop.Admin.Models.Order
+@model ChangeOrderStatusViewModel 
+
+<form id="order-status-form" method="post">
+    <div class="form-group">
+        <label class="control-label">Cập nhật trạng thái đơn hàng: </label>
+        @foreach (OrderStatus item in Enum.GetValues(typeof(OrderStatus)))
+        {
+            <div>
+                <label>
+                    <input class="radio" asp-for="OrderStatus" value="@item" name="status" type="radio">
+                    <span>@item.GetDisplayName()</span>
+                </label>
+            </div>
+        }
+    </div>
+    <div class="form-group" hidden><input asp-for="OrderId" id="order-id"/></div>
+</form>
+
+<script>
+    // Save change order status
+    $("#order-status-modal").on("click", "#btn-save-order-status", function () {
+        $.post('/Order/ChangeStatus', $('#order-status-form').serialize(), function (res) {
+            window.location.reload(true);
+        });
+    });
+</script>

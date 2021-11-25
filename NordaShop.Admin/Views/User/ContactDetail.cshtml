@@ -1,0 +1,45 @@
+﻿@using NordaShop.Admin.Models.User
+@model ContactViewModel
+
+@{
+    ViewData["Title"] = "ContactDetail";
+    ViewData["PageName"] = "responsive-tables-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-block">
+    <h1 class="title"> Chi tiết phản hồi </h1>
+</div>
+<section class="section">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-block">
+                    <div class="container">
+                        <div class="row">
+                            <label class="col-md-2">Tên người gửi :</label>
+                            <div class="col-md-10">@Model.Name</div>
+                        </div>
+                        <div class="row">
+                            <label class="col-md-2">Email :</label>
+                            <div class="col-md-10">@Model.Email</div>
+                        </div>
+                        <div class="row">
+                            <label class="col-md-2">Tiêu đề :</label>
+                            <div class="col-md-10">@Model.Subject</div>
+                        </div>
+                        <div class="row">
+                            <label class="col-md-2">Thời gian gửi :</label>
+                            <div class="col-md-10">@Model.DateCreated.ToString("HH:mm dd/MM/yyyy")</div>
+                        </div>
+                        <div class="row">
+                            <label class="col-md-2">Nội dung :</label>
+                            <div class="col-md-10"> @Model.Message </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+

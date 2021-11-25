@@ -1,0 +1,82 @@
+﻿@using NordaShop.WebApp.Models.Contact
+@model ContactViewModel 
+
+@{
+    ViewData["Title"] = "Contact";
+    ViewData["IsHome"] = false;
+}
+
+@section Scripts{ 
+    <script>
+
+    </script>
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Liên hệ" })
+
+<div class="contact-area pt-115 pb-120">
+    <div class="container">
+        <div class="contact-info-wrap-3 pb-85">
+            <h3>contact info</h3>
+            <div class="row">
+                <div class="col-lg-4 col-md-4">
+                    <div class="single-contact-info-3 text-center mb-30">
+                        <i class="icon-location-pin "></i>
+                        <h4>Địa chỉ</h4>
+                        <p>Q12, Tp.HCM, VN </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <div class="single-contact-info-3 extra-contact-info text-center mb-30">
+                        <ul>
+                            <li><i class="icon-screen-smartphone"></i> 716-298-1822 </li>
+                            <li><i class="icon-envelope "></i> <a href="#"> info@example.com</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <div class="single-contact-info-3 text-center mb-30">
+                        <i class="icon-clock "></i>
+                        <h4>Giờ hoạt động</h4>
+                        <p>Thứ 2 - Chủ nhật. 9h - 17h </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="get-in-touch-wrap">
+            <h3>Liên hệ</h3>
+            <div class="contact-from contact-shadow">
+                <form asp-action="Index" asp-controller="Contact" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6">
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                            <input asp-for="Name" type="text" placeholder="Tên">
+                        </div>
+                        <div class="col-lg-6 col-md-6">
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                            <input asp-for="Email" name="email" type="email" placeholder="Email">
+                        </div>
+                        <div class="col-lg-12 col-md-12">
+                            <span asp-validation-for="Subject" class="text-danger"></span>
+                            <input asp-for="Subject" name="subject" type="text" placeholder="Tiêu đề">
+                        </div>
+                        <div class="col-lg-12 col-md-12">
+                            <span asp-validation-for="Message" class="text-danger"></span>
+                            <textarea asp-for="Message" name="message" placeholder="Nội dung"></textarea>
+                        </div>
+                        <div class="col-lg-12 col-md-12">
+                            <button class="submit" type="submit">Gửi đi</button>
+                        </div>
+                    </div>
+                </form>
+                <p class="form-messege"></p>
+            </div>
+        </div>
+        <div class="contact-map pt-120">
+            <div id="map">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3918.4254180005287!2d106.62162331462326!3d10.855212292268089!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752a2164bf7cdd%3A0x53692fe7902e5580!2zNzAgVMO0IEvDvSwgVHJ1bmcgTeG7uSBUw6J5LCBRdeG6rW4gMTIsIFRow6BuaCBwaOG7kSBI4buTIENow60gTWluaCwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1632577299589!5m2!1svi!2s" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+

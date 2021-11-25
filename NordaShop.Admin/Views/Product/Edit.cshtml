@@ -1,0 +1,165 @@
+﻿@using NordaShop.Admin.Models.Product
+@using DataAccess.Enums
+@using NordaShop.Admin.Models.Tag
+@model ProductEditViewModel
+
+
+@{
+    ViewData["Title"] = "Edit";
+    ViewData["PageName"] = "item-editor-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            // CK Editor
+            CKEDITOR.replace('txtDescription');
+
+        });
+    </script>
+}
+
+<div class="title-block">
+    <h1 class="title"> Cập nhật sản phẩm </h1>
+</div>
+<div class="col-md-12">
+    <div class="card card-block sameheight-item">
+        <form role="form" asp-action="Edit" asp-controller="Product" method="post" enctype="multipart/form-data">
+            <div class="form-group has-success" hidden>
+                <label class="control-label">Id</label>
+                <input type="text" asp-for="ProductId" class="form-control underlined">
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Tên sản phẩm</label>
+                <input type="text" asp-for="Name" class="form-control underlined">
+                <span asp-validation-for="Name" class="has-success text-danger"></span>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Mã sản phẩm</label>
+                <input type="text" asp-for="CodeProduct" class="form-control underlined">
+                <span asp-validation-for="CodeProduct" class="has-success text-danger"></span>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Tiêu đề</label>
+                <input type="text" asp-for="Title" class="form-control underlined">
+                <span asp-validation-for="Title" class="has-success text-danger"></span>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Seo alias</label>
+                <input type="text" asp-for="SeoAlias" class="form-control underlined">
+                <span asp-validation-for="SeoAlias" class="has-success text-danger"></span>
+            </div>
+            <div class="form-group has-success">
+                <div class="row">
+                    <div class="col-sm-4 form-group has-success">
+                        <label class="control-label">Giá gốc(vnđ)</label>
+                        <input type="number" asp-for="OriginalPrice" class="form-control underlined" step=".01">
+                        <span asp-validation-for="OriginalPrice" class="has-success text-danger"></span>
+                    </div>
+                    <div class="col-sm-4 form-group has-success">
+                        <label class="control-label">Giá bán(vnđ)</label>
+                        <input type="number" asp-for="Price" class="form-control underlined" step=".01">
+                        <span asp-validation-for="Price" class="has-success text-danger"></span>
+                    </div>
+                    <div class="col-sm-4 form-group has-success">
+                        <label class="control-label">Giá khuyến mãi(vnđ)</label>
+                        <input type="number" asp-for="DiscountPrice" class="form-control underlined" step=".01">
+                        <span asp-validation-for="DiscountPrice" class="has-success text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-success">
+                <div class="row">
+                    <div class="col-sm-6 form-group has-success">
+                        <label class="control-label">Danh mục</label>
+                        <select asp-items="@ViewBag.Categories" asp-for="CategoryId"></select>
+                        <span asp-validation-for="CategoryId" class="has-success text-danger"></span>
+                    </div>
+                    <div class="col-sm-6 form-group has-success">
+                        <label class="control-label">Thương hiệu</label>
+                        <select asp-items="@ViewBag.Brands" asp-for="BrandId"></select>
+                        <span asp-validation-for="BrandId" class="has-success text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Mô tả</label>
+                <textarea asp-for="Description" id="txtDescription" cols="10" rows="10" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Tags</label>
+                <div>
+                    @foreach (var item in Model.Tags ?? Enumerable.Empty<TagViewModel>())
+                    {
+                        <label>
+                            <input class="checkbox" asp-for="@item.Checked" value="@item.Id" name="tag" type="checkbox">
+                            <span>@item.TagName</span>
+                        </label>
+                    }
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    @if (Model.Options != null && Model.Options.Count() > 0)
+                    {
+                        if (Model.Options.Any(x => x.OptionGroup == ProductOptionGroup.Size))
+                        {
+                            <div class="col-md-6">
+                                <label class="control-label">Size</label>
+                                <div>
+                                    @foreach (var item in Model.Options.Where(x => x.OptionGroup == ProductOptionGroup.Size))
+                                    {
+                                        <label>
+                                            <input class="checkbox" asp-for="@item.Checked" value="@item.Id" name="size" type="checkbox">
+                                            <span>@item.NameOption</span>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        if (Model.Options.Any(x => x.OptionGroup == ProductOptionGroup.Color))
+                        {
+                            <div class="col-md-6 form-group">
+                                <label class="control-label">Color</label>
+                                <div>
+                                    @foreach (var item in Model.Options.Where(x => x.OptionGroup == ProductOptionGroup.Color))
+                                    {
+                                        <label>
+                                            <input class="radio" asp-for="ColorId" value="@item.Id" type="radio">
+                                            <span>@item.NameOption</span>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Tùy chọn khác</label>
+                <div>
+                    <label>
+                        <input class="checkbox" asp-for="IsActive" type="checkbox">
+                        <span>Kích hoạt</span>
+                    </label>
+                    <label>
+                        <input class="checkbox" asp-for="OnTopHot" type="checkbox">
+                        <span>Sản phẩm hot</span>
+                    </label>
+                    <label>
+                        <input class="checkbox" asp-for="OnBanner" type="checkbox">
+                        <span>Hiện lên banner</span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top:40px;">
+                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            </div>
+        </form>
+    </div>
+</div>
+

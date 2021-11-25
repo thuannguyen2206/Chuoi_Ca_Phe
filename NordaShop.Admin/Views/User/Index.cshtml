@@ -1,0 +1,125 @@
+﻿@using NordaShop.Admin.Models.User
+@using Service.ApiResponse
+@model PageResult<List<UserViewModel>>
+
+@{
+    ViewData["Title"] = "Index";
+    ViewData["PageName"] = "responsive-tables-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script>
+        $(".example").on("click", ".remove-user", function () {
+            let userId = $(this).data("id");
+            if (userId != null) {
+                swal({
+                    title: `Bạn thực sự muốn xóa?`,
+                    text: "Nếu đã xóa thì sẽ không khôi phục dữ liệu lại được nữa!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((result) => {
+                    if (result) {
+                        window.location.href = `/User/Delete/${userId}`;
+                    }
+                });
+            }
+        });
+    </script>
+}
+
+<div class="title-block">
+    <h1 class="title"> Danh sách tài khoản </h1>
+</div>
+<section class="section">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-block">
+                    <div class="card-title-block">
+                        <div class="row">
+                            <div class="items-search col-md-6">
+                                <form class="form-inline" asp-action="Index" asp-controller="User" method="get">
+                                    <div class="input-group">
+                                        <input type="text" name="keyword" value="@ViewBag.Keyword" class="form-control boxed rounded-s" placeholder="Search for...">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-secondary rounded-s" type="submit">
+                                                <i class="fa fa-search"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-md-6">
+                                <a asp-action="Create" class="btn btn-pill-left btn-primary" style="float:right;">Tạo mới</a>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.Items.Count > 0)
+                    {
+                        <section class="example">
+                            <div class="table-flip-scroll">
+                                <table class="table table-striped table-bordered table-hover flip-content">
+                                    <thead class="flip-header">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Họ và Tên</th>
+                                            <th>Tên đăng nhập</th>
+                                            <th>Email</th>
+                                            <th>Địa chỉ</th>
+                                            <th>Số điện thoại</th>
+                                            <th>Điểm thưởng</th>
+                                            <th>Kích hoạt</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.Items.Count; i++)
+                                        {
+                                            var user = Model.Items[i];
+                                            <tr>
+                                                <td>@(i+1)</td>
+                                                <td>@string.Format("{0} {1}", user.FirstName, user.LastName)</td>
+                                                <td>@user.Username</td>
+                                                <td>@user.Email</td>
+                                                <td>@user.Address</td>
+                                                <td>@user.PhoneNumber</td>
+                                                <td>@user.AccumulatedPoint</td>
+                                                @if (user.IsActive)
+                                                {
+                                                    <td style="text-align:center;color:green;"><i class='fa fa-check form-control-feedback'></i></td>
+                                                }
+                                                else
+                                                {
+                                                    <td style="text-align:center;color:red;"><i class='fa fa-times form-control-feedback'></i></td>
+                                                }
+                                                <td>
+                                                    <a asp-action="Edit" asp-controller="User" asp-route-id="@user.Id" title="Edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                                </td>
+                                                <td>
+                                                    @if (!user.Username.Trim().ToLower().Equals("admin"))
+                                                    {
+                                                        <a href="#" class="remove-user" data-id="@user.Id" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    }
+                    else
+                    {
+                        <h3>Không tìm thấy tài khoản nào</h3>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@await Component.InvokeAsync("Pager", Model)
+

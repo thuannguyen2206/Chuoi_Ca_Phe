@@ -1,0 +1,431 @@
+﻿@using NordaShop.WebApp.Models.Product
+@using Common.Constants
+@using Microsoft.AspNetCore.Http
+@using Microsoft.Extensions.Configuration
+@using DataAccess.Enums
+@inject IConfiguration _config
+@inject IHttpContextAccessor _httpContext
+@model ProductDetailViewModel
+@{
+    ViewData["Title"] = "Detail";
+    ViewData["IsHome"] = false;
+    var format = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+    string email = _httpContext.HttpContext.Session.GetString(SystemConstants.Email);
+    string username = _httpContext.HttpContext.Session.GetString(SystemConstants.Username);
+}
+
+@section Scripts{ 
+    <script>
+        $(document).ready(function () {
+            $("#submit-rating").on("click", function () {
+                let form = $("#form-rating");
+                $.post(form.attr("action"), form.serialize(), function (response) {
+                    console.log(response);
+                    if (response.status) {
+                        let stars = "";
+                        for (var i = 0; i < 5; i++) {
+                            stars += `<i class="${response.data.ratingStar > i ? 'yellow' : ''} icon_star"></i>`;
+                        }
+                        let html = `<div class="single-review">
+                                        <div class="review-img">
+                                            <img src="${"@(_config["BaseUri"] + SystemConstants.UserDefault)"}" style="width:60px;" alt="">
+                                        </div>
+                                        <div class="review-content">
+                                            <div class="review-top-wrap">
+                                                <div class="review-name">
+                                                    <h5><span>${response.data.name}</span> - now </h5 >
+                                                </div>
+                                                <div class="review-rating" style="float:right;">${stars}</div>
+                                            </div>
+                                            <p>${response.data.ratingContent}</p>
+                                        </div>
+                                    </div>`;
+
+                        $("#des-details3 .review-wrapper .noti-rating").after(html);
+                        let ratingCount = $("#des-details3 .review-wrapper .noti-rating b").text();
+                        $("#des-details3 .review-wrapper .noti-rating b").text(parseInt(ratingCount) + 1);
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Chi tiết sản phẩm" })
+
+<div class="product-details-area pt-120 pb-115">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="product-details-tab">
+                    @if (Model.Product.ProductImages != null)
+                    {
+                        <div class="pro-dec-big-img-slider">
+                            @foreach (var item in Model.Product.ProductImages)
+                            {
+                                <div class="easyzoom-style">
+                                    <div class="easyzoom easyzoom--overlay">
+                                        <a href="@(_config["BaseUri"] + item.ImageLink)">
+                                            <img src="@(_config["BaseUri"] + item.ImageLink)" alt="@item.Caption">
+                                        </a>
+                                    </div>
+                                    <a class="easyzoom-pop-up img-popup" href="@(_config["BaseUri"] + item.ImageLink)"><i class="icon-size-fullscreen"></i></a>
+                                </div>
+                            }
+                        </div>
+                        <div class="product-dec-slider-small product-dec-small-style1">
+                            @foreach (var item in Model.Product.ProductImages)
+                            {
+                                <div class="product-dec-small active">
+                                    <img src="@(_config["BaseUri"] + item.ImageLink)" alt="@item.Caption">
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="product-details-content pro-details-content-mrg">
+                    <h2>@Model.Product.Name</h2>
+                    <div class="product-ratting-review-wrap">
+                        <div class="product-ratting-digit-wrap">
+                            <div class="product-ratting">
+                                <i class="icon_star"></i>
+                            </div>
+                            <div class="product-digit">
+                                <span>(@Math.Round(Model.Product.RatingStar, 1)/5)</span>
+                            </div>
+                        </div>
+                        <div class="product-review-order">
+                            <span>@Model.Product.RatingCount Đánh giá</span>
+                            <span>@Model.Product.OrderCount Đã đặt hàng</span>
+                        </div>
+                    </div>
+                    <p>@Model.Product.Title</p>
+                    <div class="pro-details-price">
+                        @if (Model.Product.DiscountPrice > 0)
+                        {
+                            <span class="new-price">@(string.Format(format, "{0:c0}", Model.Product.Price-Model.Product.DiscountPrice))</span>
+                            <span class="old-price">@(string.Format(format, "{0:c0}", Model.Product.Price))</span>
+                        }
+                        else
+                        {
+                            <span>@(string.Format(format, "{0:c0}", Model.Product.Price))</span>
+                        }
+                    </div>
+                    @if (Model.RelatedColors != null && Model.RelatedColors.Count > 1)
+                    {
+                        <div class="pro-details-color-wrap">
+                            <span>Color:</span>
+                            <div class="pro-details-color-content">
+                                <ul>
+                                    @foreach (var item in Model.RelatedColors)
+                                    {
+                                        string url = $"/products/{item.ProductId}/{item.SeoAlias}";
+                                        string nameOption = item.ColorName.Trim().ToLower();
+                                        <li>
+                                            <a href="@url" class="@(item.ColorId == Model.Product.ColorId ? "active" : string.Empty)" style="background-color:@nameOption;"></a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.Options != null && Model.Options.Count > 0)
+                    {
+                        if (Model.Options.Any(x => x.OptionGroup == ProductOptionGroup.Size))
+                        {
+                            var sizes = Model.Options.Where(x => x.OptionGroup == ProductOptionGroup.Size).ToList();
+                            <div class="pro-details-size">
+                                <span>Size:</span>
+                                <div class="pro-details-size-content">
+                                    <ul>
+                                        @for (int i = 0; i < sizes.Count; i++)
+                                        {
+                                            <li><a class="@(i == 0 ? "activesize" : string.Empty)" data-sizeid="@sizes[i].Id" href="#">@sizes[i].NameOption</a></li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        }
+                    }
+                    <div class="pro-details-quality">
+                        <span>Số lượng:</span>
+                        <div class="cart-plus-minus">
+                            <input class="cart-plus-minus-box" type="tel" name="qtybutton" value="1">
+                        </div>
+                    </div>
+                    <div class="product-details-meta">
+                        <ul>
+                            <li>
+                                <span>Danh mục:</span>
+                                <a asp-action="Index" asp-controller="Product" asp-route-categoryid="@Model.Product.CategoryId">@Model.Product.CategoryName</a>
+                            </li>
+                            @if (Model.Tags != null && Model.Tags.Count > 0)
+                            {
+                                <li>
+                                    <span>Tag: </span>
+                                    @for (int i = 0; i < Model.Tags.Count; i++)
+                                    {
+                                        var item = Model.Tags[i];
+                                        <a asp-action="Index" asp-controller="Product" asp-route-tagid="@item.Id">@item.TagName</a>
+                                        @(i != Model.Tags.Count - 1 ? "," : "")
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="pro-details-action-wrap">
+                        <div class="pro-details-add-to-cart">
+                            <a class="btn-detail-add-to-cart" data-id="@Model.Product.Id" title="Thêm vào giỏ" href="#">Thêm vào giỏ </a>
+                        </div>
+                        <div class="pro-details-action">
+                            <a data-id="@Model.Product.Id" class="btn-add-to-wishlist" title="Thêm vào Wishlist" href="#"><i class="icon-heart"></i></a>
+                            <a title="So sánh" href="#"><i class="icon-refresh"></i></a>
+                            <a class="social" title="Social" href="#"><i class="icon-share"></i></a>
+                            <div class="product-dec-social">
+                                <a class="facebook" title="Facebook" href="#"><i class="icon-social-facebook"></i></a>
+                                <a class="twitter" title="Twitter" href="#"><i class="icon-social-twitter"></i></a>
+                                <a class="instagram" title="Instagram" href="#"><i class="icon-social-instagram"></i></a>
+                                <a class="pinterest" title="Pinterest" href="#"><i class="icon-social-pinterest"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="description-review-wrapper pb-110">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="dec-review-topbar nav mb-45">
+                    <a class="active" data-bs-toggle="tab" href="#des-details1">Mô tả</a>
+                    <a data-bs-toggle="tab" href="#des-details2">Thông số</a>
+                    <a data-bs-toggle="tab" href="#des-details3">Đánh giá </a>
+                </div>
+                <div class="tab-content dec-review-bottom">
+                    <div id="des-details1" class="tab-pane active">
+                        <div class="description-wrap">
+                            <p>@Html.Raw(Model.Product.Description)</p>
+                        </div>
+                    </div>
+                    <div id="des-details2" class="tab-pane">
+                        <div class="specification-wrap table-responsive">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td class="title width1">Tên sản phẩm</td>
+                                        <td>@Model.Product.Name</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="title width1">Mã sản phẩm</td>
+                                        <td>@Model.Product.CodeProduct</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="title width1">Danh mục</td>
+                                        <td>@Model.Product.CategoryName</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="title width1">Size</td>
+                                        <td>
+                                            @foreach (var item in Model.Options)
+                                            {
+                                                if (item.OptionGroup == ProductOptionGroup.Size)
+                                                {
+                                                    <span>@item.NameOption, </span>
+                                                }
+                                            }
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="title width1">Thương hiệu </td>
+                                        <td>@Model.Product.BrandName</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="title width1">Màu</td>
+                                        <td>
+                                            <span>@Model.Product.ColorName</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="des-details3" class="tab-pane">
+                        <div class="review-wrapper">
+                            <h3 class="noti-rating">Có <b>@Model.Product.RatingCount</b> đánh giá cho sản phẩm này.</h3>
+                            @foreach (var item in Model.ProductRatings ?? Enumerable.Empty<ProductRatingViewModel>())
+                            {
+                                <div class="single-review">
+                                    <div class="review-img">
+                                        <img src="@(_config["BaseUri"] + SystemConstants.UserDefault)" style="width:60px;" alt="">
+                                    </div>
+                                    <div class="review-content">
+                                        <div class="review-top-wrap">
+                                            <div class="review-name">
+                                                <h5><span>@item.Name</span> - @item.DateCreated.ToString("dd/MM/yyyy") </h5>
+                                            </div>
+                                            <div class="review-rating" style="float:right;">
+                                                @for (int i = 0; i < 5; i++)
+                                                {
+                                                    <i class="@(item.RatingStar > i ? "yellow" : "") icon_star"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                        <p>@item.RatingContent</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="ratting-form-wrapper">
+                            <span>Thêm đánh giá</span>
+                            <p>Email của bạn sẽ không được hiển thị. Các giá trị bắt buộc sẽ có dấu <span>*</span></p>
+                            <div class="ratting-form">
+                                <form id="form-rating" asp-action="CreateNewRating" method="post" enctype="multipart/form-data">
+                                    <div class="row">
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="rating-form-style mb-20">
+                                                <label>Name <span>*</span></label>
+                                                <input type="text" value="@username" name="name">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6">
+                                            <div class="rating-form-style mb-20">
+                                                <label>Email <span>*</span></label>
+                                                <input type="email" value="@email" name="email">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6" hidden>
+                                            <div class="rating-form-style mb-20">
+                                                <input value="@Model.Product.Id" name="productId">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <div class="star-box-wrap">
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="ratingStar" id="inlineRadio5" value="5" checked>
+                                                    <label class="form-check-label" for="inlineRadio2">5 <i class="icon_star"></i></label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="ratingStar" id="inlineRadio4" value="4">
+                                                    <label class="form-check-label" for="inlineRadio2">4 <i class="icon_star"></i></label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="ratingStar" id="inlineRadio3" value="3">
+                                                    <label class="form-check-label" for="inlineRadio1">3 <i class="icon_star"></i></label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="ratingStar" id="inlineRadio2" value="2">
+                                                    <label class="form-check-label" for="inlineRadio2">2 <i class="icon_star"></i></label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio" name="ratingStar" id="inlineRadio1" value="1">
+                                                    <label class="form-check-label" for="inlineRadio1">1 <i class="icon_star"></i></label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="rating-form-style mb-20">
+                                                <label>Nội dung <span>*</span></label>
+                                                <textarea name="ratingContent" placeholder="Nội dung đánh giá"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-12">
+                                            <div class="form-submit">
+                                                <input type="button" value="Gửi" id="submit-rating">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="related-product pb-115">
+    <div class="container">
+        <div class="section-title mb-45 text-center">
+            <h2>Sản phẩm liên quan</h2>
+        </div>
+        <div class="related-product-active">
+            @if (Model.RelatedProducts != null)
+            {
+                foreach (var item in Model.RelatedProducts)
+                {
+                    var url = $"/products/{item.Id}/{item.SeoAlias}";
+                    <div class="product-plr-1">
+                        <div class="single-product-wrap">
+                            <div class="product-img product-img-zoom mb-15">
+                                <a href="@url">
+                                    <img src="@(_config["BaseUri"] + item.DefaultImage)" alt="@item.Name">
+                                </a>
+                                @if (item.DiscountPrice > 0)
+                                {
+                                    <span class="pro-badge left bg-red">-@item.DiscountPercent</span>
+                                }
+                                <div class="product-action-2 tooltip-style-2">
+                                    <button data-id="@item.Id" class="btn-add-to-wishlist" title="Wishlist"><i class="icon-heart"></i></button>
+                                    <button data-id="@item.Id" class="btn-quickview-product" title="Quick View" data-bs-toggle="modal" data-bs-target="#productModal"><i class="icon-size-fullscreen icons"></i></button>
+                                    <button title="Compare"><i class="icon-refresh"></i></button>
+                                </div>
+                            </div>
+                            <div class="product-content-wrap-2 text-center">
+                                <div class="product-rating-wrap">
+                                    <div class="product-rating">
+                                        <i class="icon_star"></i>
+                                    </div>
+                                    <span>(@Math.Round(item.RatingStar, 1)/5)</span>
+                                </div>
+                                <h3><a href="@url">@item.Name</a></h3>
+                                <div class="product-price-2">
+                                    @if (item.DiscountPrice > 0)
+                                    {
+                                        <span class="new-price">@(string.Format(format, "{0:c0}", item.Price - item.DiscountPrice))</span>
+                                        <span class="old-price">@(string.Format(format, "{0:c0}", item.Price))</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@(string.Format(format, "{0:c0}", item.Price))</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="product-content-wrap-2 product-content-position text-center">
+                                <div class="product-rating-wrap">
+                                    <div class="product-rating">
+                                        <i class="icon_star"></i>
+                                    </div>
+                                    <span>(@Math.Round(item.RatingStar, 1)/5)</span>
+                                </div>
+                                <h3><a href="@url">@item.Name</a></h3>
+                                <div class="product-price-2">
+                                    @if (item.DiscountPrice > 0)
+                                    {
+                                        <span class="new-price">@(string.Format(format, "{0:c0}", item.Price - item.DiscountPrice))</span>
+                                        <span class="old-price">@(string.Format(format, "{0:c0}", item.Price))</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@(string.Format(format, "{0:c0}", item.Price))</span>
+                                    }
+                                </div>
+                                <div class="pro-add-to-cart">
+                                    <button class="btn-add-to-cart" data-id="@item.Id" title="Add to Cart">Thêm vào giỏ</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <h3>Không tìm thấy sản phẩm liên quan nào.</h3>
+            }
+        </div>
+    </div>
+</div>

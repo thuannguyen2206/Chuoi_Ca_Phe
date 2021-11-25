@@ -1,0 +1,100 @@
+﻿@using NordaShop.Admin.Models.Slide
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration _config
+@model List<SlideViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+    ViewData["PageName"] = "responsive-tables-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script>
+        $(".example").on("click", ".remove-slide", function () {
+            let slideId = $(this).data("id");
+            if (slideId != null) {
+                swal({
+                    title: `Bạn thực sự muốn xóa?`,
+                    text: "Nếu đã xóa thì sẽ không khôi phục dữ liệu lại được nữa!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((result) => {
+                    if (result) {
+                        window.location.href = `/Slide/Delete/${slideId}`;
+                    }
+                });
+            }
+        });
+    </script>
+}
+
+<div class="title-block">
+    <h1 class="title"> Danh sách sliders </h1>
+</div>
+<section class="section">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-block">
+                    <div class="card-title-block">
+                        <a asp-action="Create" class="btn btn-pill-left btn-primary" style="float:right;">Tạo mới</a>
+                    </div>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        <section class="example">
+                            <div class="table-flip-scroll">
+                                <table class="table table-striped table-bordered table-hover flip-content">
+                                    <thead class="flip-header">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Ảnh</th>
+                                            <th>Tên</th>
+                                            <th>Tiêu đề</th>
+                                            <th>Thứ tự hiển thị</th>
+                                            <th>Kích hoạt</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.Count; i++)
+                                        {
+                                            var item = Model[i];
+                                            <tr>
+                                                <td>@(i+1)</td>
+                                                <td><img src="@(_config["BaseUri"] + item.ImageLink)" style="width:70px;height:70px;" atl="" /></td>
+                                                <td>@item.Name</td>
+                                                <td>@item.Title</td>
+                                                <td>@item.SortOrder</td>
+                                                @if (item.IsActive)
+                                                {
+                                                    <td style="text-align:center;color:green;"><i class='fa fa-check form-control-feedback'></i></td>
+                                                }
+                                                else
+                                                {
+                                                    <td style="text-align:center;color:red;"><i class='fa fa-times form-control-feedback'></i></td>
+                                                }
+                                                <td>
+                                                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                                </td>
+                                                <td>
+                                                    <a href="#" class="remove-slide" data-id="@item.Id" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    }
+                    else
+                    {
+                        <h3>Không tìm thấy slide nào</h3>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

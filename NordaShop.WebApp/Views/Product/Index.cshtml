@@ -1,0 +1,347 @@
+﻿@using DataAccess.Enums
+@using Common.Enums
+@using Microsoft.Extensions.Configuration
+@using NordaShop.WebApp.Models.Product
+@model ShopViewModel
+@inject IConfiguration _config
+@{
+    ViewData["Title"] = "Shop";
+    ViewData["IsHome"] = false;
+    var format = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+
+            // Price range
+            let sliderrange = $('#slider-range');
+            let amountprice = $('#amount');
+            let maxprice = $('#max-price').val();
+            $(function () {
+                sliderrange.slider({
+                    range: true,
+                    min: 0,
+                    max: maxprice,
+                    step: 50000,
+                    values: [$('#from-price').val(), $('#to-price').val()],
+                    slide: function (event, ui) {
+                        amountprice.val(ui.values[0] + "đ - " + ui.values[1] + "đ");
+                    }
+                });
+                amountprice.val(sliderrange.slider("values", 0) + "đ - " + sliderrange.slider("values", 1) + "đ");
+            });
+
+            // Set price range
+            $("#btn-filter-price").off("click").on("click", function () {
+                let arr = [];
+                $("#amount").val().split(" - ").forEach((ele, ind) => {
+                    arr.push(ele.slice(0, -1));
+                });
+                $('#from-price').val(arr[0]);
+                $('#to-price').val(arr[1]);
+                $('#form-filter').submit();
+            });
+
+            // remove url parameter
+            function removeURLParameter(url, parameter) {
+                //prefer to use l.search if you have a location/link object
+                var urlparts = url.split('?');
+                if (urlparts.length >= 2) {
+
+                    var prefix = encodeURIComponent(parameter) + '=';
+                    var pars = urlparts[1].split(/[&;]/g);
+
+                    //reverse iteration as may be destructive
+                    for (var i = pars.length; i-- > 0;) {
+                        //idiom for string.startsWith
+                        if (pars[i].lastIndexOf(prefix, 0) !== -1) {
+                            pars.splice(i, 1);
+                        }
+                    }
+
+                    return urlparts[0] + (pars.length > 0 ? '?' + pars.join('&') : '');
+                }
+                return url;
+            }
+
+            // Options and brands filter
+            $('input[name="options"], input[name="brands"]').on("change", function () {
+                let optionArr = [], brandArr = [];
+                let url = document.location.href;
+                //clear old value
+                if (url.includes("brand")) {
+                    url = removeURLParameter(url, "brand");
+                }
+                if (url.includes("option")) {
+                    url = removeURLParameter(url, "option");
+                }
+                // get checked input
+                $("input:checkbox[name=options]:checked").each(function () {
+                    optionArr.push(parseInt($(this).val()));
+                });
+                $("input:checkbox[name=brands]:checked").each(function () {
+                    brandArr.push(parseInt($(this).val()));
+                });
+                if (optionArr.length > 0) {
+                    if (!url.includes('?')) {
+                        url = url + "?option=" + optionArr[0];
+                        optionArr.shift();
+                    }
+                    optionArr.forEach((item, index) => {
+                        url = url + "&option=" + item;
+                    });
+                }
+
+                if (brandArr.length > 0) {
+                    if (!url.includes('?')) {
+                        url = url + "?brand=" + brandArr[0];
+                        brandArr.shift();
+                    }
+                    brandArr.forEach((item, index) => {
+                        url = url + "&brand=" + item;
+                    });
+                }
+                window.location = url;
+            });
+
+        });
+    </script>
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Sản phẩm" })
+
+<div class="shop-area pt-120 pb-120">
+    <div class="container">
+        @if (Model.Promotion != null)
+        {
+            <div class="customer-zone mb-20">
+                <p class="cart-page-title">
+                    Mua hàng ngay, giảm giá liền tay. Dùng mã
+                    <strong style="color:red;"> @Model.Promotion.DiscountCode </strong> trong đơn đặt hàng của bạn để giảm
+                    <strong style="color:red;"> @Model.Promotion.DiscountPercent% </strong> hóa đơn. Hạn sử dụng
+                    <strong style="color:red;"> @Model.Promotion.ExpireTime.ToString("HH:mm dd/MM/yyyy")</strong>
+                </p>
+            </div>
+        }
+        <div class="row flex-row-reverse">
+            <div class="col-lg-9">
+                <div class="shop-topbar-wrapper">
+                    <div class="shop-topbar-left">
+                        <div class="view-mode nav">
+                            <a class="active" href="#shop-1" data-bs-toggle="tab"><i class="icon-grid"></i></a>
+                        </div>
+                        @if (Model.Products.TotalRecords > Model.Products.PageSize)
+                        {
+                            int totals = Model.Products.TotalRecords;
+                            int current = Model.Products.PageSize * Model.Products.PageIndex;
+                            <p>Hiển thị @(current < totals ? current : totals) trong số @Model.Products.TotalRecords kết quả </p>
+                        }
+                    </div>
+                    <form id="form-filter" asp-action="Index" asp-controller="Product" method="get">
+                        <div class="product-sorting-wrapper">
+                            <div class="product-shorting shorting-style">
+                                <label>Xem :</label>
+                                <select asp-for="PageSize" onchange="this.form.submit()" name="pagesize">
+                                    <option value="12"> 12</option>
+                                    <option value="24"> 24</option>
+                                    <option value="36"> 36</option>
+                                </select>
+                            </div>
+                            <div class="product-show shorting-style">
+                                <label>Sắp xếp :</label>
+                                <select asp-for="FilterProduct" asp-items="Html.GetEnumSelectList<SortProduct>()" name="sort" onchange="this.form.submit()"></select>
+                            </div>
+                            <input name="categoryid" value="@ViewBag.CategoryId" hidden />
+                            <input name="fromprice" id="from-price" value="@ViewBag.FromPrice" hidden />
+                            <input name="toprice" id="to-price" value="@ViewBag.ToPrice" hidden />
+                            <input name="keyword" value="@ViewBag.Keyword" hidden />
+                        </div>
+                    </form>
+                </div>
+                <div class="shop-bottom-area">
+                    @if (Model.Products.Items != null && Model.Products.TotalRecords > 0)
+                    {
+                        <div class="tab-content jump">
+                            <div id="shop-1" class="tab-pane active">
+                                <div class="row">
+                                    @foreach (var item in Model.Products.Items)
+                                    {
+                                        var url = $"/products/{item.Id}/{item.SeoAlias}";
+                                        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
+                                            <div class="single-product-wrap mb-35">
+                                                <div class="product-img product-img-zoom mb-15">
+                                                    <a href="@url">
+                                                        <img src="@(_config["BaseUri"] + item.DefaultImage)" alt="">
+                                                    </a>
+                                                    @if (!string.IsNullOrEmpty(item.DiscountPercent))
+                                                    {
+                                                        <span class="pro-badge left bg-red">-@item.DiscountPercent</span>
+                                                    }
+                                                    <div class="product-action-2 tooltip-style-2">
+                                                        <button data-id="@item.Id" class="btn-add-to-wishlist" title="Wishlist"><i class="icon-heart"></i></button>
+                                                        <button data-id="@item.Id" class="btn-quickview-product" title="Quick View" data-bs-toggle="modal" data-bs-target="#productModal">
+                                                            <i class="icon-size-fullscreen icons"></i>
+                                                        </button>
+                                                        <button title="Compare"><i class="icon-refresh"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="product-content-wrap-2 text-center">
+                                                    <div class="product-rating-wrap">
+                                                        <div class="product-rating">
+                                                            <i class="icon_star"></i>
+                                                        </div>
+                                                        <span>(@Math.Round(item.RatingStar, 1)/5)</span>
+                                                    </div>
+                                                    <h3><a href="@url">@item.Name</a></h3>
+                                                    <div class="product-price-2">
+                                                        @if (item.DiscountPrice > 0)
+                                                        {
+                                                            <span class="new-price">@(string.Format(format, "{0:c0}", item.Price - item.DiscountPrice))</span>
+                                                            <span class="old-price">@(string.Format(format, "{0:c0}", item.Price))</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>@(string.Format(format, "{0:c0}", item.Price))</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="product-content-wrap-2 product-content-position text-center">
+                                                    <div class="product-rating-wrap">
+                                                        <div class="product-rating">
+                                                            <i class="icon_star"></i>
+                                                        </div>
+                                                        <span>(@Math.Round(item.RatingStar, 1)/5)</span>
+                                                    </div>
+                                                    <h3><a href="@url">@item.Name</a></h3>
+                                                    <div class="product-price-2">
+                                                        @if (item.DiscountPrice > 0)
+                                                        {
+                                                            <span class="new-price">@(string.Format(format, "{0:c0}", item.Price-item.DiscountPrice))</span>
+                                                            <span class="old-price">@(string.Format(format, "{0:c0}", item.Price))</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>@(string.Format(format, "{0:c0}", item.Price))</span>
+                                                        }
+                                                    </div>
+                                                    <div class="pro-add-to-cart">
+                                                        <button class="btn-add-to-cart" data-id="@item.Id" title="Add to Cart">Thêm vào giỏ</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        @await Component.InvokeAsync("Pager", Model.Products)
+                    }
+                    else
+                    {
+                        <h3>Không có sản phẩm nào</h3>
+                    }
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="sidebar-wrapper sidebar-wrapper-mrg-right">
+                    <div class="sidebar-widget mb-40">
+                        <h4 class="sidebar-widget-title">Tìm kiếm </h4>
+                        <div class="sidebar-search">
+                            <form class="sidebar-search-form" asp-action="Index" asp-controller="Product" method="get">
+                                <input type="text" value="@ViewBag.Keyword" name="keyword" placeholder="Search here...">
+                                <button><i class="icon-magnifier"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="sidebar-widget shop-sidebar-border mb-35 pt-40">
+                        <h4 class="sidebar-widget-title">Danh mục </h4>
+                        <div class="shop-catigory">
+                            <ul>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    if (category.ParentId == null)
+                                    {
+                                        <li><a asp-action="Index" asp-controller="Product" asp-route-categoryid="@category.Id">@category.Name</a></li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
+                        <h4 class="sidebar-widget-title">Bộ lọc giá </h4>
+                        <div class="price-filter">
+                            <span>Phạm vi: @(string.Format(format, "{0:c0}", 0)) - @(string.Format(format, "{0:c0}", Model.MaxPrice))</span>
+                            <div id="slider-range"></div>
+                            <div class="price-slider-amount">
+                                <div class="label-input">
+                                    <input type="number" asp-for="MaxPrice" id="max-price" hidden />
+                                    <input type="text" id="amount" name="price" placeholder="Add Your Price" readonly />
+                                </div>
+                                <button id="btn-filter-price" type="button">Lọc</button>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.Brands != null && Model.Brands.Count > 0)
+                    {
+                        <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
+                            <h4 class="sidebar-widget-title">Thương hiệu </h4>
+                            <div class="sidebar-widget-list">
+                                <ul>
+                                    @foreach (var item in Model.Brands)
+                                    {
+                                        if (item.TotalProducts > 0)
+                                        {
+                                            <li>
+                                                <div class="sidebar-widget-list-left">
+                                                    <input asp-for="@item.Checked" type="checkbox" name="brands" value="@item.Id">
+                                                    <a asp-action="Index" asp-controller="Product" asp-route-brand="@item.Id">@item.BrandName <span>@item.TotalProducts</span> </a>
+                                                    <span class="checkmark"></span>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                    @foreach (var option in Enum.GetValues(typeof(ProductOptionGroup)))
+                    {
+                        <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
+                            <h4 class="sidebar-widget-title">@option </h4>
+                            <div class="sidebar-widget-list">
+                                <ul>
+                                    @foreach (var item in Model.Options)
+                                    {
+                                        if (item.OptionGroup.Equals(option) && item.ProductQuantity > 0)
+                                        {
+                                            <li>
+                                                <div class="sidebar-widget-list-left">
+                                                    <input asp-for="@item.Checked" type="checkbox" name="options" value="@item.Id">
+                                                    <a asp-action="Index" asp-controller="Product" asp-route-option="@item.Id" class="check-option">@item.NameOption <span>@item.ProductQuantity</span> </a>
+                                                    <span class="checkmark"></span>
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                    @if (Model.Tags != null && Model.Tags.Count > 0)
+                    {
+                        <div class="sidebar-widget shop-sidebar-border pt-40">
+                            <h4 class="sidebar-widget-title">Tags</h4>
+                            <div class="tag-wrap sidebar-widget-tag">
+                                @foreach (var item in Model.Tags)
+                                {
+                                    <a asp-action="Index" asp-controller="Product" asp-route-tagid="@item.Id">@item.TagName</a>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

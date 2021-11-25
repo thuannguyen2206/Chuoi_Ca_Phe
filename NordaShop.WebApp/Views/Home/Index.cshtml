@@ -1,0 +1,236 @@
+﻿@using Microsoft.Extensions.Configuration
+@using NordaShop.WebApp.Models.Home
+@using NordaShop.WebApp.Enums
+@using NordaShop.WebApp.Models.Slide
+@model HomeViewModel
+@inject IConfiguration _config
+
+@{
+    ViewData["Title"] = "Home Page";
+    ViewData["IsHome"] = true;
+}
+@section Scripts{
+    <script>
+        $(".tab-style-1").on("click", "a", function () {
+            let tabname = $(this).data("tabname");
+            if (tabname != null && tabname != "") {
+                $.ajax({
+                    url: '@Url.Action("SwitchToTabs", "Home")',
+                    type: 'GET',
+                    data: { tabname: tabname },
+                    success: function (res) {
+                        if (res != null) {
+                            $('#tab-product .row').html(res);
+                        }
+                    }
+                });
+            }
+        });
+
+    </script>
+}
+
+<div class="slider-area bg-gray">
+    <div class="hero-slider-active-1 hero-slider-pt-1 nav-style-1 dot-style-1">
+        @foreach (var slide in Model.Sliders ?? Enumerable.Empty<SlideViewModel>())
+        {
+            <div class="single-hero-slider single-animation-wrap">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="hero-slider-content-1 hero-slider-content-1-pt-1 slider-animated-1">
+                                <h4 class="animated">New Arrivals</h4>
+                                <h1 class="animated">@slide.Name</h1>
+                                <p class="animated">@slide.Title</p>
+                                <div class="btn-style-1">
+                                    <a class="animated btn-1-padding-1" asp-action="Index" asp-controller="Product">Explore Now</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="hero-slider-img-1 slider-animated-1">
+                                <img class="animated" src="@(_config["BaseUri"] + slide.ImageLink)" alt="@slide.Name">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+<div class="service-area">
+    <div class="container">
+        <div class="service-wrap">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="single-service-wrap mb-30">
+                        <div class="service-icon">
+                            <i class="icon-cursor"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Miễn phí vận chuyển</h3>
+                            <span>Hóa đơn trên 500.000 đ</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="single-service-wrap mb-30">
+                        <div class="service-icon">
+                            <i class="icon-reload"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Đổi trả hàng</h3>
+                            <span>Trong vòng 30 ngày</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="single-service-wrap mb-30">
+                        <div class="service-icon">
+                            <i class="icon-lock"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Thanh toán an toàn</h3>
+                            <span>Thanh toán online</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-12">
+                    <div class="single-service-wrap mb-30">
+                        <div class="service-icon">
+                            <i class="icon-tag"></i>
+                        </div>
+                        <div class="service-content">
+                            <h3>Giá cả phù hợp</h3>
+                            <span>Chất lượng đảm bảo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="about-us-area pt-85">
+    <div class="container">
+        <div class="border-bottom-1 about-content-pb">
+            <div class="row">
+                <div class="col-lg-3 col-md-3">
+                    <div class="about-us-logo">
+                        <img src="~/assets/images/about/logo.png" alt="logo">
+                    </div>
+                </div>
+                <div class="col-lg-9 col-md-9">
+                    <div class="about-us-content">
+                        <h3>Introduce</h3>
+                        <p>Norda store is a business concept is to offer fashion and quality at the best price. It has since it was founded in 2021 grown into one of the best WooCommerce Fashion Theme. The content of this site is copyright-protected and is the property of David Moye Creative.</p>
+                        <div class="signature">
+                            <h2>David Moye</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="product-area section-padding-1 pt-115 pb-75">
+    <div class="container">
+        <div class="section-title-tab-wrap mb-45">
+            <div class="section-title">
+                <h2>Sản phẩm nổi bật</h2>
+            </div>
+            <div class="tab-style-1 nav">
+                <a class="active" data-tabname="@Tab.BestSellers" data-bs-toggle="tab">Bán chạy nhất</a>
+                <a data-tabname="@Tab.NewArrivals" data-bs-toggle="tab"> Mới nhất</a>
+                <a data-tabname="@Tab.Trending" data-bs-toggle="tab"> Xu hướng</a>
+                <a data-tabname="@Tab.TopSales" data-bs-toggle="tab"> Top giảm giá</a>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="tab-content jump">
+            <div id="tab-product" class="tab-pane active">
+                <div class="row">
+                    @await Component.InvokeAsync("TabProduct", new { tabname = Model.ActiveTab.ToString() })
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="banner-area pb-85">
+    <div class="container">
+        <div class="section-title mb-45">
+            <h2>Bộ sưu tập</h2>
+        </div>
+        <div class="row">
+            @if (Model.BannerProducts != null && Model.BannerProducts.Count > 0)
+            {
+                var product1 = Model.BannerProducts[0];
+                var product2 = Model.BannerProducts[1];
+
+                <div class="col-lg-7 col-md-7">
+                    <div class="banner-wrap banner-mr-1 mb-30">
+                        <div class="banner-img banner-img-zoom">
+                            <a href="/products/@product1.Id/@product1.SeoAlias">
+                                <img src="@(_config["BaseUri"] + product1.DefaultImage)" alt="">
+                            </a>
+                        </div>
+                        <div class="banner-content-1">
+                            <h2>@product1.Name</h2>
+                            <p>@product1.Title</p>
+                            <div class="btn-style-1">
+                                <a class="animated btn-1-padding-2" asp-action="Detail" asp-controller="Product" asp-route-id="@product1.Id">Shop Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5 col-md-5">
+                    <div class="banner-wrap  banner-ml-1 mb-30">
+                        <div class="banner-img banner-img-zoom">
+                            <a href="/products/@product2.Id/@product2.SeoAlias">
+                                <img src="@(_config["BaseUri"] + product2.DefaultImage)" alt="">
+                            </a>
+                        </div>
+                        <div class="banner-content-2">
+                            <h2>@product2.Name</h2>
+                            <p>@product2.Title</p>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <h3>Không có sản phẩm</h3>
+            }
+        </div>
+    </div>
+</div>
+<div class="instagram-area">
+    <div class="container">
+        <div class="section-title-tag-wrap mb-45">
+            <div class="section-title">
+                <h2>Top thương hiệu</h2>
+            </div>
+            <div class="instagram-tag">
+                <span>#monkeylover</span>
+            </div>
+        </div>
+        <div class="instagram-wrap">
+            <div id="instafeed" data-limit="5" class="instagram-wrap-1"></div>
+        </div>
+    </div>
+</div>
+<div class="brand-logo-area pt-100 pb-100">
+    <div class="container">
+        <div class="brand-logo-wrap brand-logo-mrg">
+            @if (Model.Brands != null && Model.Brands.Count > 0)
+            {
+                foreach (var item in Model.Brands)
+                {
+                    <div class="single-brand-logo mb-10">
+                        <img src="@(_config["BaseUri"] + item.BrandLogo)" alt="@item.BrandName" title="@item.BrandName">
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

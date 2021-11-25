@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Order</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 1000px;
+            margin: 0 auto;
+        }
+
+        p {
+            font-size: 15px;
+        }
+
+        .header-wrap, .info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .header-logo {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .header-info {
+            text-align: right;
+        }
+
+        .header-info p {
+            margin: 3px 0;
+        }
+
+        .col6, .order-items, .total {
+            margin: 10px 0;
+        }
+
+        .main-wrap, .info {
+            margin: 30px 0;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            font-size: 50px;
+            color: #2c2c2c;
+            letter-spacing: 2px;
+            text-shadow: 4px 4px 0px #d5d5d5, 7px 7px 0px rgba(0, 0, 0, 0.2);
+            margin-left: 100px;
+        }
+
+        .customer-info, .payment-info {
+            width: 50%;
+        }
+
+        .customer-info p, .payment-info p, .total h3 {
+            display: table;
+            width: 100%;
+        }
+
+        .customer-info label, .payment-info label {
+            display: table-cell;
+            padding: 5px;
+            width: 24%;
+        }
+
+        .order-items,
+        table {
+            width: 100%;
+            font-size: 16px;
+        }
+
+        tr th {
+            background-color: rgb(127, 170, 250);
+            padding: 10px;
+        }
+
+        tr td {
+            padding: 10px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        td:nth-child(1) {
+            width: 10%;
+            text-align: center;
+        }
+
+        td:nth-child(2) {
+            width: 40%;
+            text-align: left;
+        }
+
+        td:nth-child(3),
+        th:nth-child(3) {
+            width: 10%;
+            text-align: right;
+        }
+
+        td:nth-child(4),
+        th:nth-child(4) {
+            width: 20%;
+            text-align: right;
+        }
+
+        td:nth-child(5),
+        th:nth-child(5) {
+            width: 20%;
+            text-align: right;
+        }
+
+        .total label {
+            display: table-cell;
+            padding: 5px;
+            width: 50%;
+        }
+
+        .total span {
+            text-align: right;
+            display: table-cell;
+            padding: 5px 0;
+        }
+
+        .total .red {
+            color: red;
+            font-size: 25px;
+        }
+
+        .qrcode {
+            display: block;
+        }
+
+        .qrcode img {
+            width: 120px;
+            height: 120px;
+            float: right;
+            margin-right: 10px;
+        }
+
+        footer .copy-rigth {
+            width: 100%;
+            background-color: rgb(245, 244, 244);
+            text-align: center;
+            padding: 15px;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-wrap">
+                <div class="header-logo col6">
+                    NordaShop
+                </div>
+                <div class="header-info col6">
+                    <p>{{Shop Address}}</p>
+                    <p>{{Shop Phone Number}}</p>
+                    <p>{{Website}}</p>
+                    <p>{{Shop Email}}</p>
+                </div>
+            </div>
+        </header>
+        <hr />
+        <main class="main-wrap">
+            <div class="qrcode">
+                <img src="{{Qr Code}}" alt="qrcode">
+            </div>
+            <div class="info">
+                <div class="customer-info col6">
+                    <p><label>Khách hàng </label> : {{User Name}}</p>
+                    <p><label>Địa chỉ </label><span>: {{Address}}</span></p>
+                    <p><label>Ghi chú địa chỉ </label><span>: {{Address Option}}</span></p>
+                    <p><label>Số điện thoại </label> : {{Phone Number}}</p>
+                    <p><label>Email </label> : {{Email}}</p>
+                    <p><label>Ghi chú </label> : {{Order Note}}</p>
+                </div>
+                <div class="payment-info col6">
+                    <p><label>Mã đơn hàng</label>: {{Order Code}}</p>
+                    <p><label>Trạng thái đơn</label>: {{Order Status}}</p>
+                    <p><label>Thanh toán</label>: {{Is Paid}}</p>
+                    <p><label>Ngày đặt</label>: {{Date Created}}</p>
+                </div>
+            </div>
+            <div class="order-items">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Giá (vnđ)</th>
+                            <th>Thành tiền (vnđ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{Order Items}}
+                    </tbody>
+                </table>
+            </div>
+            <hr />
+            <div class="total">
+                <h3><label>Thành tiền</label> <span>{{SubPrice}}</span></h3>
+                <h3><label>Giảm giá</label> <span>{{Discount Price}}</span></h3>
+                <h3><label>Phí vận chuyển</label> <span>{{Shipping Fee}}</span></h3>
+                <h3 class="red"><label>Tổng cộng</label> <span>{{Total Price}}</span></h3>
+            </div>
+        </main>
+        <hr />
+        <footer>
+            <div class="copy-rigth">
+                © 2021 NordaShop Website. All rights reserved.
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

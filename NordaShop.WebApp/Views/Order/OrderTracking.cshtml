@@ -1,0 +1,164 @@
+﻿@using NordaShop.WebApp.Models.Order
+@using Microsoft.Extensions.Configuration
+@using Common.Helper
+@inject IConfiguration _config
+@model OrderTrackingViewModel
+
+@{
+    ViewData["Title"] = "OrderTracking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["IsHome"] = false;
+    var format = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $("#order-tracking").on("click", function () {
+                $("#tracking-form").submit();
+            });
+
+            // download qrcode order
+            //(function () {
+            //    html2canvas($("#qrcode")[0]).then((canvas) => {
+            //        $("#canvas-qrcode").append(canvas);
+            //        let imgageData = $("#canvas-qrcode canvas").get(0).toDataURL("image/png");
+            //        //let newData = imgageData.replace(/^data:image\/png/, "data:application/octet-stream");
+            //        $("#download-qrcode-order").attr("download", "qrcode.png").attr("href", imgageData);
+            //    });
+            //})(jQuery);
+
+            //$("#download-qrcode-order").on("click", function (e) {
+            //    e.preventDefault();
+            //    let qrcode = $("#qrcode").attr("src");
+            //    let link = document.createElement('a');
+            //    link.href = qrcode;
+            //    link.download = 'qrcode.png';
+            //    $("#canvas-qrcode").append(link);
+            //    link.click();
+            //    $("#canvas-qrcode").html("");
+            //});
+
+        });
+    </script>
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Tra cứu đơn hàng" })
+
+<div class="order-tracking-area pt-110 pb-120">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-6 col-lg-8 col-md-10 ms-auto me-auto">
+                <div class="order-tracking-content">
+                    <h3 style="text-align:center">Tra cứu đơn hàng</h3>
+                    <p class="text-danger">@ViewBag.Message</p>
+                    <div class="order-tracking-form">
+                        <form id="tracking-form" asp-action="OrderTracking" asp-controller="Order" method="post" enctype="multipart/form-data">
+                            <div class="sin-order-tracking">
+                                <label>Mã đơn hàng</label>
+                                <input type="text" asp-for="OrderCode" placeholder="Tra cứu theo mã đơn hàng" autocomplete="off">
+                                <span asp-validation-for="OrderCode" class="text-danger"></span>
+                            </div>
+                            <div class="order-track-btn">
+                                <a href="#" id="order-tracking">Tra cứu</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (Model != null && Model.Detail != null)
+        {
+            <div class="cart-main-area pt-115 pb-120">
+                <div class="container">
+                    <div class="row">
+                        <h3 class="cart-page-title" style="text-align:center;">Thông tin đơn đặt hàng</h3><br />
+                        <div class="col-lg-8 col-md-8 col-sm-8 col-8">
+                            <p><strong>Mã đơn hàng: </strong> @Model.Detail.OrderCode</p>
+                            <p><strong>Trạng thái đơn hàng: </strong> @Model.Detail.OrderStatus.GetDisplayName()</p>
+                            <p><strong>Trạng thái thanh toán: </strong> @(Model.Detail.IsPaid ? "Đã thanh toán" : "Chưa thanh toán")</p>
+                            <p><strong>Tên khách hàng: </strong> @Model.Detail.CustomerName</p>
+                            <p><strong>Số điện thoại: </strong> @Model.Detail.CustomerPhoneNumber</p>
+                            <p><strong>Địa chỉ: </strong> @Model.Detail.CustomerAddress</p>
+                            <p><strong>Thời gian đặt hàng: </strong> @Model.Detail.DateCreated.ToString("HH:mm dd/MM/yyyy")</p>
+                            <p><strong>Thành tiền: </strong> @(string.Format(format, "{0:c0}", Model.Detail.OrderDetails.Sum(x => x.Price * x.Quantity)))</p>
+                            <p><strong>Giảm giá: </strong> @(string.Format(format, "{0:c0}", Model.Detail.DiscountPrice))</p>
+                            <p><strong>Phí vận chuyển: </strong> @(string.Format(format, "{0:c0}", Model.Detail.ShippingFee))</p>
+                            <h3><strong style="color:red;">Tổng cộng: </strong> @(string.Format(format, "{0:c0}", Model.Detail.TotalPrice))</h3>
+                            <br />
+                        </div>
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-4">
+                            <img id="qrcode" src="@Model.Detail.QRCodeLink" style="max-height:150px;max-width:150px;" alt="QR Code" />
+                            <a class="btn btn-outline-primary" asp-action="Download" asp-route-id="@Model.Detail.Id">
+                                <i class="fa fa-download" aria-hidden="true"></i> Tải xuống đơn hàng
+                            </a>
+                            @*<a href="#" id="download-qrcode-order" class="btn btn-outline-primary"><i class="fa fa-download" aria-hidden="true"></i> Download .png</a>
+                                <div id="canvas-qrcode" hidden></div>*@
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                            @if (Model.Detail.OrderDetails.Count > 0)
+                            {
+                                <form action="#">
+                                    <div class="table-content table-responsive cart-table-content">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Ảnh</th>
+                                                    <th>Tên sản phẩm</th>
+                                                    <th>Giá</th>
+                                                    <th>Size</th>
+                                                    <th>Số lượng</th>
+                                                    <th>Tổng</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for (int i = 0; i < Model.Detail.OrderDetails.Count; i++)
+                                                {
+                                                    var item = Model.Detail.OrderDetails[i];
+                                                    string url = $"/products/{item.ProductId}/{item.ProductName}";
+                                                    <tr>
+                                                        <td>@(i + 1)</td>
+                                                        <td class="product-thumbnail">
+                                                            <a href="@url"><img src="@(_config["BaseUri"] + item.ProductDefaultLink)" alt="@item.ProductName" style="max-height:120px;"></a>
+                                                        </td>
+                                                        <td class="product-name"><a href="@url">@item.ProductName</a></td>
+                                                        <td class="product-price-cart"><span class="amount">@(string.Format(format, "{0:c0}", item.Price))</span></td>
+                                                        <td class="product-price-cart"><span class="amount">@item.SizeName</span></td>
+                                                        <td class="product-quantity pro-details-quality">@item.Quantity</td>
+                                                        <td class="product-subtotal">@(string.Format(format, "{0:c0}", item.Price * item.Quantity))</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </form>
+                                @*<div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="cart-shiping-update-wrapper">
+                                                <div class="cart-shiping-update">
+                                                    <a asp-action="Download" asp-route-id="@Model.Detail.Id">
+                                                        <i class="fa fa-download" aria-hidden="true"></i> Tải xuống đơn hàng
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>*@
+                            }
+                            else
+                            {
+                                <p style="text-align:center;">Không tìm thấy sản phẩm nào trong đơn đặt hàng của bạn</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+

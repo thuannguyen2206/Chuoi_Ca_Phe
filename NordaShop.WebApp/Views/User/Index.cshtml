@@ -1,0 +1,57 @@
+﻿@using NordaShop.WebApp.Models.User
+@using NordaShop.WebApp.Enums
+@model UserNavTabViewModel
+@{
+    ViewData["Title"] = "Index";
+    ViewData["IsHome"] = false;
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Bảng điều khiển" })
+
+<div class="my-account-wrapper pt-120 pb-120">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <!-- My Account Page Start -->
+                <div class="myaccount-page-wrapper">
+                    <!-- My Account Tab Menu Start -->
+                    <div class="row">
+                        <div class="col-lg-3 col-md-4">
+                            <div class="myaccount-tab-menu nav" role="tablist">
+                                <a asp-action="SwitchUserNavTab" asp-route-nav="@UserNavTab.Dashboard" class="@(Model.NavTab == UserNavTab.Dashboard ? "active" : string.Empty)" >
+                                    <i class="fa fa-dashboard"></i> Bảng điều khiển
+                                </a>
+                                <a asp-action="SwitchUserNavTab" asp-route-nav="@UserNavTab.Orders" class="@(Model.NavTab == UserNavTab.Orders ? "active" : string.Empty)" >
+                                    <i class="fa fa-cart-arrow-down"></i> Đơn hàng
+                                </a>
+                                <a asp-action="SwitchUserNavTab" asp-route-nav="@UserNavTab.Download" class="@(Model.NavTab == UserNavTab.Download ? "active" : string.Empty)">
+                                    <i class="fa fa-cloud-download"></i> Download
+                                </a>
+                                <a asp-action="SwitchUserNavTab" asp-route-nav="@UserNavTab.PaymentMethod" class="@(Model.NavTab == UserNavTab.PaymentMethod ? "active" : string.Empty)" >
+                                    <i class="fa fa-credit-card"></i> Thanh toán
+                                </a>
+                                <a asp-action="SwitchUserNavTab" asp-route-nav="@UserNavTab.Address" class="@(Model.NavTab == UserNavTab.Address ? "active" : string.Empty)" >
+                                    <i class="fa fa-map-marker"></i> Địa chỉ
+                                </a>
+                                <a asp-action="SwitchUserNavTab" asp-route-nav="@UserNavTab.AccountDetail" class="@(Model.NavTab == UserNavTab.AccountDetail ? "active" : string.Empty)">
+                                    <i class="fa fa-user"></i> Tài khoản
+                                </a>
+                                <a asp-action="SignOut" asp-controller="User"><i class="fa fa-sign-out"></i> Đăng xuất</a>
+                            </div>
+                        </div>
+                        <!-- My Account Tab Menu End -->
+                        <!-- My Account Tab Content Start -->
+                        <div class="col-lg-9 col-md-8">
+                            <div class="tab-content" id="myaccountContent">
+                                <!-- Single Tab Content Start -->
+                                @await Component.InvokeAsync("UserNavTab", new { nav = Model.NavTab })
+                                <!-- Single Tab Content End -->
+                            </div>
+                        </div> <!-- My Account Tab Content End -->
+                    </div>
+                </div> <!-- My Account Page End -->
+            </div>
+        </div>
+    </div>
+</div>
+

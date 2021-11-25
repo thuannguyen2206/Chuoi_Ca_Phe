@@ -1,0 +1,201 @@
+﻿@using NordaShop.WebApp.Models.Post
+@using NordaShop.WebApp.Models.Tag
+@using Microsoft.Extensions.Configuration
+@using Common.Constants
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor _httpContext
+@inject IConfiguration _config
+@model PostDetailViewModel
+
+@{
+    ViewData["Title"] = "Blog Detail";
+    ViewData["IsHome"] = false;
+    string email = _httpContext.HttpContext.Session.GetString(SystemConstants.Email);
+    string username = _httpContext.HttpContext.Session.GetString(SystemConstants.Username);
+
+    bool hasPreviousValue = Model.Post.PreviousId.HasValue && Model.Post.PreviousId > 0;
+    string previousUrl = hasPreviousValue ? $"/blogs/{Model.Post.PreviousId}/{Model.Post.PreviousSeoAlias}" : "#";
+
+    bool hasNextValue = Model.Post.NextId.HasValue && Model.Post.NextId > 0;
+    string nextUrl = hasNextValue ? $"/blogs/{Model.Post.NextId}/{Model.Post.NextSeoAlias}" : "#";
+}
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $("#btn-create-comment").on("click", function () {
+                let form = $("#form-comment");
+                $.post(form.attr("action"), form.serialize(), function (response) {
+                    console.log(response);
+                    if (response.status) {
+                        let img = "@_config["BaseUri"]" + response.data.imageLink;
+                        let html = `<div class="single-comment-wrapper mt-35">
+                                        <div class="blog-comment-img">
+                                            <img src="${img}" style="max-width:100px;" alt="">
+                                        </div>
+                                        <div class="blog-comment-content">
+                                            <h4>${response.data.name}</h4>
+                                            <span>now</span>
+                                            <p>${response.data.comment}</p>
+                                        </div>
+                                    </div>`;
+
+                        $(".blog-comment-wrapper .blog-dec-title").after(html);
+                        let commentCount = $(".blog-comment-wrapper .blog-dec-title span").text();
+                        $(".blog-comment-wrapper .blog-dec-title span").text(parseInt(commentCount) + 1);
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Chi tiết bài viết" })
+
+<div class="blog-area pt-120 pb-120">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9">
+                <div class="blog-details-wrapper">
+                    <div class="blog-details-top">
+                        <div class="blog-details-img">
+                            <img alt="" src="@(_config["BaseUri"] + Model.Post.LinkImage)" style="max-width:870px;max-height:510px;">
+                        </div>
+                        <div class="blog-details-content">
+                            <div class="blog-meta-2">
+                                <ul>
+                                    <li>News</li>
+                                    <li>@Model.Post.DateCreated.ToString("dd-MM-yyyy")</li>
+                                </ul>
+                            </div>
+                            <h1>@Model.Post.Title</h1>
+                            @Html.Raw(Model.Post.ReviewContent)
+                        </div>
+                    </div>
+                    <div class="tag-share">
+                        <div class="dec-tag">
+                            <ul>
+                                @foreach (var item in Model.Tags)
+                                {
+                                    <li><a asp-action="Index" asp-route-tagid="@item.Id">@item.TagName  </a></li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="blog-share">
+                            <span>share :</span>
+                            <div class="share-social">
+                                <ul>
+                                    <li>
+                                        <a class="facebook" href="#">
+                                            <i class="icon-social-facebook"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="twitter" href="#">
+                                            <i class="icon-social-twitter"></i>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="instagram" href="#">
+                                            <i class="icon-social-instagram"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="next-previous-post">
+                        <a href="@previousUrl" style="@(hasPreviousValue ? "" : "visibility:hidden;")"> <i class="fa fa-angle-left"></i> Bài trước</a>
+                        <a href="@nextUrl" style="@(hasNextValue ? "" : "visibility:hidden;")">Bài tiếp <i class="fa fa-angle-right"></i></a>
+                    </div>
+                    <div class="blog-comment-wrapper mt-55">
+                        <h4 class="blog-dec-title">Bình luận : <span>@Model.Post.TotalComment</span></h4>
+                        @foreach (var item in Model.PostComments ?? Enumerable.Empty<PostCommentViewModel>())
+                        {
+                            <div class="single-comment-wrapper mt-35">
+                                <div class="blog-comment-img">
+                                    <img src="@(_config["BaseUri"] + item.ImageLink)" style="max-width:100px;" alt="">
+                                </div>
+                                <div class="blog-comment-content">
+                                    <h4>@item.Name</h4>
+                                    <span>@item.DateCreated.ToString("dd-MM-yyyy")</span>
+                                    <p>@item.Comment</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="blog-reply-wrapper mt-50">
+                        <h4 class="blog-dec-title">Viết bình luận</h4>
+                        <form class="blog-form" id="form-comment" asp-action="CreateComment" method="post">
+                            <div class="row">
+                                <div class="col-md-6" hidden>
+                                    <div class="leave-form">
+                                        <input type="number" name="postId" value="@Model.Post.Id">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="leave-form">
+                                        <input type="text" name="name" value="@username" placeholder="Tên của bạn">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="leave-form">
+                                        <input type="email" name="email" value="@email" placeholder="Email">
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="text-leave">
+                                        <textarea name="message" placeholder="Nội dung"></textarea>
+                                        <input type="button" id="btn-create-comment" value="Đăng bình luận">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <div class="sidebar-wrapper sidebar-wrapper-mrg-left">
+                    <div class="sidebar-widget mb-40">
+                        <h4 class="sidebar-widget-title">Tìm kiếm </h4>
+                        <div class="sidebar-search">
+                            <form class="sidebar-search-form" asp-action="Index" asp-controller="Blog" method="get">
+                                <input type="text" value="@ViewBag.Keyword" name="keyword" placeholder="Search Post">
+                                <button type="submit">
+                                    <i class="icon-magnifier"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
+                        <h4 class="sidebar-widget-title">Bài viết liên quan </h4>
+                        <div class="recent-post">
+                            @foreach (var item in Model.RelatedPost ?? Enumerable.Empty<PostViewModel>())
+                            {
+                                string url = $"/blogs/{item.Id}/{item.SeoAlias}";
+                                <div class="single-sidebar-blog">
+                                    <div class="sidebar-blog-img">
+                                        <a href="@url"><img src="@(_config["BaseUri"] + item.LinkImage)" alt=""></a>
+                                    </div>
+                                    <div class="sidebar-blog-content">
+                                        <h5><a href="@url" title="@item.Title">@item.SortTitle</a></h5>
+                                        <span>@item.DateCreated.ToString("dd-MM-yyyy")</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="sidebar-widget shop-sidebar-border pt-40">
+                        <h4 class="sidebar-widget-title">Tags</h4>
+                        <div class="tag-wrap sidebar-widget-tag">
+                            @foreach (var item in Model.Tags ?? Enumerable.Empty<TagViewModel>())
+                            {
+                                <a asp-action="Index" asp-route-tagid="@item.Id">@item.TagName</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

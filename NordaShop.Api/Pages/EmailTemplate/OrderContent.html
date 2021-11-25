@@ -1,0 +1,52 @@
+﻿
+<style>
+    .pro-img {
+        max-width: 100px;
+        max-height: 100px;
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .col {
+        flex: 1 0;
+        margin-left: 1rem;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        width: auto;
+    }
+</style>
+
+<tr>
+    <td align="left"
+        bgcolor="#ffffff"
+        style="padding: 24px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
+        <p style="color: #3d4852; font-size: 19px; font-weight: bold; margin-top: 0; text-align: left">
+            Chào {{User Name}}, cảm ơn bạn đã đặt hàng tại NordaShop!
+        </p>
+        <br />
+        <p style="margin: 0;color: #3d4852;">Mã đơn hàng: <strong>{{Order Code}}</strong></p>
+        <p style="margin: 0;color: #3d4852;">Ngày mua hàng: {{Date Created}}</p>
+        <p style="color: #3d4852; font-size: 16px;">
+            Đơn hàng gồm:
+        </p>
+        <p style="color: #3d4852; font-size: 16px;">
+            <ul style="list-style-type: decimal">
+                {{Order Items}}
+            </ul>
+        </p>
+        <hr />
+        <h4>Thành tiền: {{SubPrice}}</h4>
+        <h4>Phí vận chuyển: {{Shipping Fee}}</h4>
+        <h4>Giảm giá: {{Discount Price}}</h4>
+        <h3>Tổng cộng: {{Total Price}}</h3>
+        <p style="color: #3d4852; font-size: 16px;">
+            Mẹo nhỏ, hãy kiểm tra kỹ chất lượng sản phẩm bạn nhận được.
+            Nếu có dấu hiệu hư hỏng hay không đúng với mô tả sản phẩm,
+            bạn hãy liên hệ tại với NordaShop trong vòng 24h kể từ lúc nhận sản phẩm để được hỗ trợ nhé.
+        </p>
+        <p style="color: #3d4852; font-size: 16px;">NordaShop.</p>
+    </td>
+</tr>

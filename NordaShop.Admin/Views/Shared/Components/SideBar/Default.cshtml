@@ -1,0 +1,172 @@
+﻿
+
+<div class="sidebar-container">
+    <div class="sidebar-header">
+        <div class="brand">
+            <div class="logo">
+                <span class="l l1"></span>
+                <span class="l l2"></span>
+                <span class="l l3"></span>
+                <span class="l l4"></span>
+                <span class="l l5"></span>
+            </div> Norda Admin
+        </div>
+    </div>
+    <nav class="menu">
+        <ul class="sidebar-menu metismenu" id="sidebar-menu">
+            <li class="active">
+                <a asp-action="Index" asp-controller="Home">
+                    <i class="fa fa-home"></i> Bảng điều khiển
+                </a>
+            </li>
+            <li>
+                <a asp-action="Index" asp-controller="Order">
+                    <i class="fa fa-shopping-cart"></i> Đơn hàng
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fa fa-archive" aria-hidden="true"></i> Sản phẩm <i class="fa arrow"></i>
+                </a>
+                <ul class="sidebar-nav">
+                    <li><a asp-action="Index" asp-controller="Product">Danh sánh sản phẩm</a></li>
+                    <li><a asp-action="Index" asp-controller="Option">Thuộc tính</a></li>
+                    <li><a asp-action="Index" asp-controller="Promotion">Khuyến mãi</a></li>
+                </ul>
+            </li>
+            <li>
+                <a asp-action="Index" asp-controller="Blog">
+                    <i class="fa fa-pencil-square-o"></i> Bài viết
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fa fa-user"></i> Tài khoản <i class="fa arrow"></i>
+                </a>
+                <ul class="sidebar-nav">
+                    <li><a asp-action="Index" asp-controller="User">Danh sách tài khoản</a></li>
+                    <li><a asp-action="ListContacts" asp-controller="User">Phản hồi</a></li>
+                </ul>
+            </li>
+            <li>
+                <a asp-action="Index" asp-controller="Tag">
+                    <i class="fa fa-tags" aria-hidden="true"></i> Thẻ
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="fa fa-sitemap"></i> Báo cáo
+                </a>
+            </li>
+            <li>
+                <a href="">
+                    <i class="fa fa-cogs"></i> Hệ thống <i class="fa arrow"></i>
+                </a>
+                <ul class="sidebar-nav">
+                    <li><a asp-action="Index" asp-controller="Menu">Menus</a></li>
+                    <li><a asp-action="Index" asp-controller="Category">Danh mục</a></li>
+                    <li><a asp-action="Index" asp-controller="Brand">Thương hiệu</a></li>
+                    <li><a asp-action="Index" asp-controller="Slide">Trình chiếu</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+</div>
+<footer class="sidebar-footer">
+    <ul class="sidebar-menu metismenu" id="customize-menu">
+        <li>
+            <ul>
+                <li class="customize">
+                    <div class="customize-item">
+                        <div class="row customize-header">
+                            <div class="col-4">
+                            </div>
+                            <div class="col-4">
+                                <label class="title">fixed</label>
+                            </div>
+                            <div class="col-4">
+                                <label class="title">static</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+                                <label class="title">Sidebar:</label>
+                            </div>
+                            <div class="col-4">
+                                <label>
+                                    <input class="radio" type="radio" name="sidebarPosition" value="sidebar-fixed">
+                                    <span></span>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <label>
+                                    <input class="radio" type="radio" name="sidebarPosition" value="">
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+                                <label class="title">Header:</label>
+                            </div>
+                            <div class="col-4">
+                                <label>
+                                    <input class="radio" type="radio" name="headerPosition" value="header-fixed">
+                                    <span></span>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <label>
+                                    <input class="radio" type="radio" name="headerPosition" value="">
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+                                <label class="title">Footer:</label>
+                            </div>
+                            <div class="col-4">
+                                <label>
+                                    <input class="radio" type="radio" name="footerPosition" value="footer-fixed">
+                                    <span></span>
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <label>
+                                    <input class="radio" type="radio" name="footerPosition" value="">
+                                    <span></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="customize-item">
+                        <ul class="customize-colors">
+                            <li>
+                                <span class="color-item color-red" data-theme="red"></span>
+                            </li>
+                            <li>
+                                <span class="color-item color-orange" data-theme="orange"></span>
+                            </li>
+                            <li>
+                                <span class="color-item color-green active" data-theme=""></span>
+                            </li>
+                            <li>
+                                <span class="color-item color-seagreen" data-theme="seagreen"></span>
+                            </li>
+                            <li>
+                                <span class="color-item color-blue" data-theme="blue"></span>
+                            </li>
+                            <li>
+                                <span class="color-item color-purple" data-theme="purple"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+            <a href="">
+                <i class="fa fa-cog"></i> Customize
+            </a>
+        </li>
+    </ul>
+</footer>

@@ -1,0 +1,49 @@
+﻿@using NordaShop.WebApp.Models.Cart
+@using Microsoft.Extensions.Configuration
+@model List<MiniCartItemViewModel>
+@inject IConfiguration _config
+
+@{
+    var format = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<div class="sidebar-cart-all">
+    <a class="cart-close" href="#"><i class="icon_close"></i></a>
+    <div class="cart-content">
+        <h3>Giỏ hàng</h3>
+        @if (Model == null || Model.Count == 0)
+        {
+            <p>Không có sản phẩm nào trong giỏ</p>
+        }
+        else
+        {
+            <ul>
+                @foreach (var item in Model)
+                {
+                    string url = $"/products/{item.ProductId}/{item.SeoAlias}";
+                    <li class="single-product-cart">
+                        <div class="cart-img">
+                            <a href="@url">
+                                <img src="@(_config["BaseUri"] + item.ImageLink)" alt="@item.ProductName">
+                            </a>
+                        </div>
+                        <div class="cart-title">
+                            <h4><a href="@url">@item.ProductName</a></h4>
+                            <span> @item.Quantity × @(string.Format(format, "{0:c0}", item.Price))	</span>
+                        </div>
+                        <div class="cart-delete">
+                            @*<a href="#" data-itemid="@item.Id" title="Remove"><i class="fa fa-trash-o"></i></a>*@
+                        </div>
+                    </li>
+                }
+            </ul>
+            <div class="cart-total">
+                <h4>Tạm tính: <span>@(string.Format(format, "{0:c0}", Model.Sum(x => x.Price * x.Quantity)))</span></h4>
+            </div>
+            <div class="cart-checkout-btn">
+                <a class="btn-hover cart-btn-style" asp-controller="Cart" asp-action="Index">Xem giỏ hàng</a>
+                <a class="no-mrg btn-hover cart-btn-style" asp-controller="Cart" asp-action="Checkout">Đặt hàng</a>
+            </div>
+        }
+    </div>
+</div>

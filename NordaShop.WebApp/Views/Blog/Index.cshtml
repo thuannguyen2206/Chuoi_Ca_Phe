@@ -1,0 +1,102 @@
+﻿@using NordaShop.WebApp.Models.Tag
+@using NordaShop.WebApp.Models.Post
+@using Common.Constants 
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration _config
+@model PostIndexViewModel
+
+@{
+    ViewData["Title"] = "Blog";
+    ViewData["IsHome"] = false;
+}
+
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Bài viết" })
+
+<div class="blog-area pt-120 pb-120">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9">
+                @if (Model.Posts.Items.Count > 0)
+                {
+                    <div class="row">
+                        @foreach (var item in Model.Posts.Items)
+                        {
+                            string url = $"/blogs/{item.Id}/{item.SeoAlias}";
+                            <div class="col-lg-6 col-md-6 col-12 col-sm-6">
+                                <div class="blog-wrap mb-40">
+                                    <div class="blog-img mb-20">
+                                        <a href="@url">
+                                            <img src="@(_config["BaseUri"] + item.LinkImage)" style="max-width:420px;max-height:285px;" alt="blog-img">
+                                        </a>
+                                    </div>
+                                    <div class="blog-content">
+                                        <div class="blog-meta">
+                                            <ul>
+                                                <li><a href="#">News </a></li>
+                                                <li>@item.DateCreated.ToString("dd-MM-yyyy")</li>
+                                            </ul>
+                                        </div>
+                                        <h1><a href="@url">@item.Title</a></h1>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="pro-pagination-style text-center mt-10">
+                        <ul>
+                            @await Component.InvokeAsync("Pager", Model.Posts)
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <h3>Không có bài viết nào.</h3>
+                }
+            </div>
+            <div class="col-lg-3">
+                <div class="sidebar-wrapper sidebar-wrapper-mrg-left">
+                    <div class="sidebar-widget mb-40">
+                        <h4 class="sidebar-widget-title">Tìm kiếm </h4>
+                        <div class="sidebar-search">
+                            <form class="sidebar-search-form" asp-action="Index" asp-controller="Blog" method="get">
+                                <input type="text" value="@ViewBag.Keyword" name="keyword" placeholder="Search Post">
+                                <button type="submit">
+                                    <i class="icon-magnifier"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="sidebar-widget shop-sidebar-border mb-40 pt-40">
+                        <h4 class="sidebar-widget-title">Bài viết mới nhất </h4>
+                        <div class="recent-post">
+                            @foreach (var item in Model.LastestPosts ?? Enumerable.Empty<PostViewModel>())
+                            {
+                                string url = $"/blogs/{item.Id}/{item.SeoAlias}";
+                                <div class="single-sidebar-blog">
+                                    <div class="sidebar-blog-img">
+                                        <a href="@url"><img src="@(_config["BaseUri"] + item.LinkImage)" alt=""></a>
+                                    </div>
+                                    <div class="sidebar-blog-content">
+                                        <h5><a href="@url" title="@item.Title">@item.SortTitle</a></h5>
+                                        <span>@item.DateCreated.ToString("dd-MM-yyyy")</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <div class="sidebar-widget shop-sidebar-border pt-40">
+                        <h4 class="sidebar-widget-title">Tags</h4>
+                        <div class="tag-wrap sidebar-widget-tag">
+                            @foreach (var item in Model.Tags ?? Enumerable.Empty<TagViewModel>())
+                            {
+                                <a asp-action="Index" asp-route-tagid="@item.Id">@item.TagName</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

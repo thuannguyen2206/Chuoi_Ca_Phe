@@ -1,0 +1,358 @@
+﻿@using NordaShop.WebApp.Models.Cart
+@using Common.Constants
+@using Common.Helper
+@using DataAccess.Enums
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+    ViewData["IsHome"] = false;
+    decimal subTotal = 0;
+    int totalProducts = Model.CheckoutDetails.Sum(x => x.Quantity);
+    ViewBag.CheckoutDetail = Model.CheckoutDetails;
+    var format = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+
+    var payments = (PaymentMethod[])Enum.GetValues(typeof(PaymentMethod));
+}
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            (function ($) {
+                LoadProvince();
+
+                $("#coupon-form").submit(function (e) {
+                    e.preventDefault();
+                });
+
+            })(jQuery);
+
+            function LoadProvince() {
+                $.ajax({
+                    url: '/Cart/LoadProvince',
+                    type: "GET",
+                    success: function (result) {
+                        if (result != null) {
+                            let html = `<option value="">Tỉnh/thành phố</option>`;
+                            $.each(result, function (i, item) {
+                                html += `<option value="${item.provinceId}">${item.provinceName}</option>`;
+                            });
+                            $("#province").html(html);
+                        }
+                    }
+                });
+            }
+
+            function LoadDistrict(provinceId) {
+                $.ajax({
+                    url: '/Cart/LoadDistrict',
+                    type: "GET",
+                    data: { provinceId: provinceId },
+                    success: function (result) {
+                        if (result != null) {
+                            let html = `<option value="">Quận/huyện</option>`;
+                            $.each(result, function (i, item) {
+                                html += `<option value="${item.districtId}">${item.districtName}</option>`;
+                            });
+                            $("#district").html(html);
+                        }
+                    }
+                });
+            }
+
+            function LoadWard(districtId) {
+                $.ajax({
+                    url: '/Cart/LoadWard',
+                    type: "GET",
+                    data: { districtId: districtId },
+                    success: function (result) {
+                        if (result != null) {
+                            let html = `<option value="">Phường/xã</option>`;
+                            $.each(result, function (i, item) {
+                                html += `<option value="${item.wardCode}">${item.wardName}</option>`;
+                            });
+                            $("#ward").html(html);
+                        }
+                    }
+                });
+            }
+
+            function UpdateTotalPrice(value) {
+                $("#total-order-price span").text(Utils.CurrencyFormat.format(value));
+                $("#total-order-price input").val(value);
+            }
+
+            function UpdateShippingFee(value) {
+                $("#input-shipping-fee").val(value);
+                $("#shipping-fee span").text(Utils.CurrencyFormat.format(value));
+            }
+
+            function UpdateDiscountPrice(value) {
+                $("#discount-price span").text(Utils.CurrencyFormat.format(value));
+                $("#discount-price input").val(value);
+            }
+
+            // load district
+            $("#province").off("change").on("change", function () {
+                let provinceId = $(this).val();
+                $("#district").html("");
+                $("#ward").html("");
+                if (provinceId != "" && provinceId > 0) {
+                    LoadDistrict(provinceId);
+                }
+            });
+
+            // load ward
+            $("#district").off("change").on("change", function () {
+                let districtId = $(this).val();
+                $("#ward").html("");
+                if (districtId != "" && districtId > 0) {
+                    LoadWard(districtId);
+                }
+            });
+
+            // calculation shipping fee
+            $("#ward").off("change").on("change", function () {
+                let wardCode = $(this).val();
+                let districtId = $("#district").val();
+                let deliveryType = $("#delivery-type").val();
+                let subtotal = $("#subtotal input").val();
+                let proCount = @totalProducts;
+                if (districtId != "" && wardCode != "" && subtotal > 0) {
+                    $.ajax({
+                        url: '/Cart/CalShippingFee',
+                        type: "GET",
+                        data: { districtId: districtId, wardCode: wardCode, deliveryType: deliveryType, subtotal: subtotal, productCount: proCount },
+                        success: function (result) {
+                            UpdateShippingFee(result);
+                            let subtotal = $("#subtotal input").val();
+                            let discount = $("#discount-price input").val();
+                            UpdateTotalPrice(subtotal - discount + result);
+                        }
+                    });
+                }
+            });
+
+            $("#btn-apply-coupon").on("click", function () {
+                let code = $("#coupon-form input[name=code]").val();
+                if (code != null) {
+                    $.ajax({
+                        url: '/Cart/GetDiscountPercent',
+                        type: "POST",
+                        data: { code: code },
+                        success: function (result) {
+                            $("#discount-code").val(code);
+                            $("#discount-percent").val(result);
+                            let subtotal = $("#subtotal input").val();
+                            let discount = parseFloat(subtotal) * result / 100;
+                            let shippingFee = parseFloat($("#input-shipping-fee").val());
+                            UpdateDiscountPrice(discount);
+                            UpdateTotalPrice(subtotal - discount + shippingFee);
+                        }
+                    });
+                }
+            });
+
+            // Checkout
+            $("#btn-checkout").off("click").on("click", function () {
+                let payment = $('input[name="payment_method"]:checked').val();
+                $("#input-payment-method").val(payment);
+                $("#form-checkout").submit();
+            });
+        });
+    </script>
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Đặt hàng" })
+
+<div class="checkout-main-area pt-120 pb-120">
+    <div class="container">
+        <div class="customer-zone mb-20">
+            <p class="cart-page-title">Bạn có phiếu giảm giá? <a class="checkout-click3" href="#">Bấm vào đây để nhập mã</a></p>
+            <div class="checkout-login-info3">
+                <form id="coupon-form" method="post" enctype="multipart/form-data">
+                    <input asp-for="DiscountCode" name="code" type="text" placeholder="Coupon code">
+                    <input type="submit" id="btn-apply-coupon" value="Áp dụng">
+                </form>
+            </div>
+        </div>
+        <div class="checkout-wrap pt-30">
+            <div class="row">
+                <div class="col-lg-7">
+                    <div class="billing-info-wrap mr-50">
+                        <form id="form-checkout" asp-action="Checkout" asp-controller="Cart" method="post" enctype="multipart/form-data">
+                            <h3>Thông tin khách hàng</h3>
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="billing-info mb-20">
+                                        <label>Họ tên<abbr class="required" title="required">*</abbr></label>
+                                        <input asp-for="CustomerName" type="text">
+                                        <span asp-validation-for="CustomerName" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="billing-info mb-20">
+                                        <label>Số điện thoại <abbr class="required" title="required">*</abbr></label>
+                                        <input asp-for="CustomerPhoneNumber" type="text">
+                                        <span asp-validation-for="CustomerPhoneNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="billing-info mb-20">
+                                        <label>Tỉnh/Thành phố </label>
+                                        <select asp-for="ProvinceId" id="province"></select>
+                                        <span asp-validation-for="ProvinceId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="billing-info mb-20">
+                                        <label>Quận/Huyện </label>
+                                        <select asp-for="DistrictId" id="district"></select>
+                                        <span asp-validation-for="DistrictId" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4">
+                                    <div class="billing-info mb-20">
+                                        <label>Phường/Xã </label>
+                                        <select asp-for="WardCode" id="ward"></select>
+                                        <span asp-validation-for="WardCode" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="billing-info mb-20">
+                                        <label>Địa chỉ chính xác của bạn <abbr class="required" title="required">*</abbr></label>
+                                        <input asp-for="CustomerAddress" class="billing-address" type="text" placeholder="Ví dụ: Số 10 Phổ Quang, phường 2, quận Tân Bình, TP.HCM">
+                                        <span asp-validation-for="CustomerAddress" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="billing-info mb-20">
+                                        <label>Ghi chú địa chỉ </label>
+                                        <input asp-for="CustomerAddressOption" class="billing-address" type="text" placeholder="Ví dụ: Tầng 2, chung cư Sky Center">
+                                        <span asp-validation-for="CustomerAddressOption" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-md-12">
+                                    <div class="billing-info mb-20">
+                                        <label>Email <abbr class="required" title="required">*</abbr></label>
+                                        <input asp-for="CustomerEmail" type="text">
+                                        <span asp-validation-for="CustomerEmail" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-md-12" hidden>
+                                    <div class="billing-info mb-20">
+                                        <input id="discount-code" asp-for="DiscountCode" type="text">
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-md-12" hidden>
+                                    <div class="billing-info mb-20">
+                                        <input id="discount-percent" asp-for="DiscountPercent" type="tel">
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-md-12" hidden>
+                                    <div class="billing-info mb-20">
+                                        <input id="delivery-type" asp-for="DeliveryServiceType" type="number">
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-md-12" hidden>
+                                    <div class="billing-info mb-20">
+                                        <input id="input-shipping-fee" asp-for="ShippingFee">
+                                    </div>
+                                </div>
+                                <div class="col-lg-12 col-md-12" hidden>
+                                    <div class="billing-info mb-20">
+                                        <input id="input-payment-method" asp-for="PaymentMethod">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="additional-info-wrap">
+                                <label>Ghi chú đặt hàng </label>
+                                <textarea asp-for="OrderNote" placeholder="Ví dụ: Giao hàng giờ hành chính... "></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="your-order-area">
+                        <h3>Đơn đặt hàng</h3>
+                        <div class="your-order-wrap gray-bg-4">
+                            <div class="your-order-info-wrap">
+                                <div class="your-order-info">
+                                    <ul>
+                                        <li>Sản phẩm <span>Giá</span></li>
+                                    </ul>
+                                </div>
+                                <div class="your-order-middle">
+                                    <ul>
+                                        @foreach (var item in Model.CheckoutDetails ?? Enumerable.Empty<CheckoutDetailViewModel>())
+                                        {
+                                            subTotal += item.Price * item.Quantity;
+                                            <li title="@item.ProductName">@item.ProductSortName x @item.Quantity <span>@(string.Format(format, "{0:c0}", item.Price * item.Quantity)) </span></li>
+                                        }
+                                    </ul>
+                                </div>
+                                <div class="your-order-info order-subtotal">
+                                    <ul>
+                                        <li id="subtotal">
+                                            Tạm tính <span>@(string.Format(format, "{0:c0}", subTotal)) </span>
+                                            <input value="@subTotal" hidden />
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="your-order-info order-shipping">
+                                    <ul>
+                                        <li id="discount-price">
+                                            Giảm giá <span>@(string.Format(format, "{0:c0}", subTotal * Model.DiscountPercent / 100)) </span>
+                                            <input value="@(subTotal * Model.DiscountPercent / 100)" hidden />
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="your-order-info order-shipping">
+                                    <ul id="shipping-fee">
+                                        <li>Phí giao hàng <span>@(string.Format(format, "{0:c0}", 0)) </span></li>
+                                    </ul>
+                                </div>
+                                <div class="your-order-info order-total">
+                                    <ul>
+                                        <li id="total-order-price">
+                                            Tổng cộng <span>@(string.Format(format, "{0:c0}", subTotal - (subTotal * Model.DiscountPercent / 100) + Model.ShippingFee)) </span>
+                                            <input value="@(subTotal - (subTotal * Model.DiscountPercent / 100) + Model.ShippingFee)" hidden />
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="payment-method">
+                                @{
+                                    int index = 0;
+                                    foreach (PaymentMethod item in Enum.GetValues(typeof(PaymentMethod)))
+                                    {
+                                        index++;
+                                        <div class="pay-top sin-payment">
+                                            <input id="payment-method-@(index)" class="input-radio" type="radio" asp-for="PaymentMethod" value="@item" name="payment_method">
+                                            <label for="payment-method-@(index)">
+                                                @EnumExtentions.GetDisplayName(item)
+                                                @if (item == PaymentMethod.Paypal)
+                                                {
+                                                    <img alt="" src="~/assets/images/icon-img/payment.png">
+                                                }
+                                            </label>
+                                            <div class="payment-box payment_method_bacs">
+                                                <p>Make your payment directly into our bank account. Please use your Order ID as the payment reference.</p>
+                                            </div>
+                                        </div>
+
+                                    }
+                                }
+                            </div>
+                        </div>
+                        @if (Model.CheckoutDetails != null && Model.CheckoutDetails.Count > 0)
+                        {
+                            <div class="Place-order">
+                                <a id="btn-checkout" href="#">Đặt hàng</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

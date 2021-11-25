@@ -1,0 +1,75 @@
+﻿@using NordaShop.WebApp.Models.User
+@model UserViewModel
+
+<div class="tab-pane fade show active" id="account-info" role="tabpanel">
+    <div class="myaccount-content">
+        <h3>Thông tin tài khoản</h3>
+        <div class="account-details-form">
+            <form asp-action="UpdateInfo" asp-controller="User" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="single-input-item">
+                            <label for="last-name" class="required">Họ</label>
+                            <input type="text" asp-for="LastName" id="last-name" />
+                            <span asp-validation-for="LastName"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="single-input-item">
+                            <label for="first-name" class="required">Tên </label>
+                            <input type="text" asp-for="FirstName" id="first-name" />
+                            <span asp-validation-for="FirstName"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="single-input-item">
+                    <label for="display-name" class="required">Tên đăng nhập <abbr class="required" title="required">*</abbr></label>
+                    <input type="text" asp-for="Username" id="display-name" />
+                    <span asp-validation-for="Username"></span>
+                </div>
+                <div class="single-input-item">
+                    <label for="email" class="required">Email <abbr class="required" title="required">*</abbr></label>
+                    <input type="email" asp-for="Email" readonly/>
+                    <span asp-validation-for="Email"></span>
+                </div>
+                <div class="single-input-item">
+                    <label  class="required">Số điện thoại</label>
+                    <input type="text" asp-for="PhoneNumber" />
+                    <span asp-validation-for="PhoneNumber"></span>
+                </div>
+                <div class="single-input-item">
+                    <label  class="required">Địa chỉ</label>
+                    <input type="text" asp-for="Address" />
+                    <span asp-validation-for="Address"></span>
+                </div>
+                <fieldset>
+                    <legend>Đổi mật khẩu</legend>
+                    <div class="single-input-item">
+                        <label for="current-pwd" class="required">Mật khẩu hiện tại</label>
+                        <input type="password" asp-for="CurrentPassword" id="current-pwd" />
+                        <span asp-validation-for="CurrentPassword"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="single-input-item">
+                                <label for="new-pwd" class="required">Mật khẩu mới</label>
+                                <input type="password" asp-for="NewPassword" id="new-pwd" placeholder="Mật khẩu có ít nhất 8 kí tự" />
+                                <span asp-validation-for="NewPassword"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="single-input-item">
+                                <label for="confirm-pwd" class="required">Xác nhận mật khẩu</label>
+                                <input type="password" asp-for="ConfirmPassword" id="confirm-pwd" placeholder="Mật khẩu có ít nhất 8 kí tự"/>
+                                <span asp-validation-for="ConfirmPassword"></span>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="single-input-item">
+                    <button type="submit" class="check-btn sqr-btn ">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,118 @@
+﻿@using NordaShop.WebApp.Models.User
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration _config
+@model List<WishListViewModel>
+@{
+    ViewData["Title"] = "WishList";
+    ViewData["IsHome"] = false;
+    var format = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+
+@section Scripts{
+    <script>
+        $(document).off("click").on("click", ".btn-wishlist-add-to-cart", function () {
+            let item = $(this);
+            let sizeId = parseInt(item.closest("tr").find(".wishlist-size").val());
+            let productid = parseInt(item.data("id"));
+            let qty = item.closest(".product-wishlist-cart").siblings(".product-quantity").find("input.cart-plus-minus-box").val();
+            qty = parseInt(qty);
+            if (productid > 0 && qty > 0) {
+                $.ajax({
+                    url: '/Cart/AddToCart',
+                    type: "POST",
+                    data: { id: productid, quantity: qty, sizeid: sizeId },
+                    success: function (result) {
+                        if (result) {
+                            let productCount = $(".header-bottom .header-cart .pro-count").text();
+                            productCount = parseInt(productCount) + 1;
+                            $(".header-cart .pro-count").text(productCount);
+                        }
+                    }
+                });
+            }
+        });
+
+        $(document).off("change").on("change", ".cart-plus-minus-box", function () {
+            let item = $(this);
+            let qty = parseInt(item.val());
+            if (qty > 0) {
+                let price = item.closest(".product-quantity").siblings(".product-price-cart").find(".amount").text();
+                price = parseFloat(price.slice(1));
+                let subTotal = Math.round(qty * price * 100) / 100;
+                item.closest(".product-quantity").siblings(".product-subtotal").text("$" + subTotal);
+            }
+        });
+    </script>
+
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Yêu thích" })
+
+<div class="cart-main-area pt-115 pb-120">
+    <div class="container">
+        <h3 class="cart-page-title" style="text-align:center;">Sản phẩm yêu thích</h3>
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+                @if (Model != null && Model.Count > 0)
+                {
+                    <form action="#">
+                        <div class="table-content table-responsive cart-table-content">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Ảnh</th>
+                                        <th>Tên sản phẩm</th>
+                                        <th>Giá</th>
+                                        <th>Size</th>
+                                        <th>Số lượng</th>
+                                        <th>Tổng</th>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        string url = $"/products/{item.ProductId}/{item.SeoAlias}";
+                                        <tr>
+                                            <td class="product-thumbnail">
+                                                <a href="@url"><img src="@(_config["BaseUri"] + item.ImageLink)" alt="@item.NameProduct" style="max-height:120px;"></a>
+                                            </td>
+                                            <td class="product-name"><a href="@url">@item.NameProduct</a></td>
+                                            <td class="product-price-cart"><span class="amount">@(string.Format(format, "{0:c0}", item.Price))</span></td>
+                                            <td>
+                                                @if (item.Options.Count > 0)
+                                                {
+                                                    <select class="wishlist-size" asp-items="@item.Options.Select(x => new SelectListItem() { Value = x.Id.ToString(), Text = x.NameOption })"></select>
+                                                }
+                                                else
+                                                {
+                                                    <span>No</span>
+                                                }
+                                            </td>
+                                            <td class="product-quantity pro-details-quality">
+                                                <div class="cart-plus-minus">
+                                                    <input class="cart-plus-minus-box" asp-for="@item.Quantity" type="text" name="qtybutton" value="1">
+                                                </div>
+                                            </td>
+                                            <td class="product-subtotal">@(string.Format(format, "{0:c0}", item.Price * item.Quantity))</td>
+                                            <td class="product-wishlist-cart">
+                                                <a href="#" data-id="@item.ProductId" class="btn-wishlist-add-to-cart" title="Thêm vào giỏ"><i class="fa fa-shopping-cart"></i> Thêm</a>
+                                            </td>
+                                            <td><a asp-action="RemoveWishlistItem" asp-controller="User" asp-route-id="@item.ProductId" title="Xóa" class="btn btn-outline-danger"><i class="fa fa-trash-o"></i></a></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <p style="text-align:center;">Không có sản phẩm yêu thích</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+

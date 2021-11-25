@@ -1,0 +1,143 @@
+﻿@using NordaShop.Admin.Models.Option
+@model List<OptionViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+    ViewData["PageName"] = "responsive-tables-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            // Filter option
+            $('input[type=radio][name=group]').on("change", function () {
+                let group = $('input[name="group"]:checked').val();
+                let data = $(".example tbody tr");
+                switch (group) {
+                    case "All":
+                        data.show();
+                        break;
+                    case "Size":
+                        data.filter(".size-group").show();
+                        data.filter(".color-group").hide();
+                        break;
+                    case "Color":
+                        data.filter(".size-group").hide();
+                        data.filter(".color-group").show();
+                        break;
+                    default:
+                        data.show();
+                        break;
+                }
+            });
+
+            // Remove option
+            $(".example").on("click", ".remove-option", function () {
+                let optionId = $(this).data("id");
+                if (optionId != null) {
+                    swal({
+                        title: `Bạn thực sự muốn xóa?`,
+                        text: "Nếu đã xóa thì sẽ không khôi phục dữ liệu lại được nữa!",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                    }).then((result) => {
+                        if (result) {
+                            window.location.href = `/Option/Delete/${optionId}`;
+                        }
+                    });
+                }
+            });
+
+        });
+    </script>
+}
+
+<div class="title-block">
+    <h1 class="title"> Danh sách tùy chọn của sản phẩm </h1>
+</div>
+<section class="section">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-block">
+                    <div class="card-title-block">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div>
+                                    <label>
+                                        <input class="radio" value="All" id="group-name" checked name="group" type="radio">
+                                        <span>Tất cả</span>
+                                    </label>
+                                    <label>
+                                        <input class="radio" value="Size" id="group-name" name="group" type="radio">
+                                        <span>Size</span>
+                                    </label>
+                                    <label>
+                                        <input class="radio" value="Color" id="group-name" name="group" type="radio">
+                                        <span>Color</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <a asp-action="Create" class="btn btn-pill-left btn-primary" style="float:right;">Tạo mới</a>
+                            </div>
+                        </div>
+                    </div>
+                    @if (Model.Count > 0)
+                    {
+                        <section class="example">
+                            <div class="table-flip-scroll">
+                                <table class="table table-striped table-bordered table-hover flip-content">
+                                    <thead class="flip-header">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Tên</th>
+                                            <th>Loại</th>
+                                            <th>Số lượng sản phẩm</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Kích hoạt</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.Count; i++)
+                                        {
+                                            var item = Model[i];
+                                            <tr class="@(item.OptionGroup.ToString() == "Size" ? "size-group" : "color-group")">
+                                                <td>@(i+1)</td>
+                                                <td>@item.NameOption</td>
+                                                <td>@item.OptionGroup</td>
+                                                <td>@item.ProductQuantity</td>
+                                                <td>@item.DateCreated.ToString("HH:mm dd/MM/yyyy")</td>
+                                                @if (item.IsActive)
+                                                {
+                                                    <td style="text-align:center;color:green;"><i class='fa fa-check form-control-feedback'></i></td>
+                                                }
+                                                else
+                                                {
+                                                    <td style="text-align:center;color:red;"><i class='fa fa-times form-control-feedback'></i></td>
+                                                }
+                                                <td><a asp-action="Edit" asp-controller="Option" asp-route-id="@item.Id" title="Edit"><i class="fa fa-pencil"></i></a></td>
+                                                <td>
+                                                    <a href="#" class="remove-option" data-id="@item.Id" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    }
+                    else
+                    {
+                        <h3>Không có tùy chọn nào được tìm thấy</h3>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+

@@ -1,0 +1,66 @@
+﻿@{
+    Layout = "";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Browses</title>
+    <style>
+        body{
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            font-size:80%;
+        }
+
+        .file-explorer{
+            float:left;
+            width:800px;
+            border-left:1px solid #dff0ff;
+        }
+
+        .thumnail{
+            float:left;
+            margin: 3px;
+            padding:3px;
+            border: 1px solid #dff0ff;
+        }
+    </style>
+    <script src="~/js/jquery.js"></script>
+    <script src="~/plugins/ckeditor_4.16.2_full/ckeditor/ckeditor.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Helper function to get parameters from the query string.
+            function getUrlParam(paramName) {
+                var reParam = new RegExp('(?:[\?&]|&)' + paramName + '=([^&]+)', 'i');
+                var match = window.location.search.match(reParam);
+
+                return (match && match.length > 1) ? match[1] : null;
+            }
+
+            // Simulate user action of selecting a file to be returned to CKEditor.
+            $(".file-explorer").on("click", "img", function () {
+                let funcNum = getUrlParam('CKEditorFuncNum');
+                let fileUrl = $(this).attr("src");
+                window.opener.CKEDITOR.tools.callFunction(funcNum, fileUrl);
+                window.close();
+            });
+
+        });
+    </script>
+</head>
+<body>
+    <div class="file-explorer">
+        @foreach (var item in ViewBag.FileInfo)
+        {
+            <div class="thumnail">
+                <img src="/file-uploads/@item.Name" alt="thum" title="@item.Name" style="max-width:150px;max-height:120px;" />
+                <br />
+                <small>@item.Name</small>
+            </div>
+        }
+    </div>
+</body>
+</html>

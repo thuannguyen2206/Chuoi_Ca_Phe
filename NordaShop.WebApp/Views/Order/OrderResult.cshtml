@@ -1,0 +1,38 @@
+﻿
+@{
+    ViewData["Title"] = "Order Result";
+    ViewData["IsHome"] = false;
+    bool success = (bool)TempData["SuccessOrder"];
+    Guid orderId = (Guid)TempData["OrderCode"];
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Kết quả đặt hàng" })
+
+<div class="order-tracking-area pt-110 pb-120">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-6 col-lg-8 col-md-10 ms-auto me-auto">
+                <div class="order-tracking-content">
+                    @if (success)
+                    {
+                        <h2 style="text-align:center;">Đơn đặt hàng của bạn đã thành công.</h2>
+                        <p>Mã đơn hàng của bạn là: <strong>@orderId</strong></p>
+                        <p>
+                            Cảm ơn bạn đã lựa chọn dịch vụ của chúng tôi! Các sản phẩm bạn đã mua sẽ được gửi trong thời gian sớm nhất.
+                        </p>
+                    }
+                    else
+                    {
+                        <h2 style="text-align:center;color:red;">Ohh no! Đã xảy ra sự cố.</h2>
+                        <p>
+                            Chúng tôi không thể đặt hàng trong giỏ của bạn! Hãy thử lại hoặc phản hồi vấn đề của bạn cho chúng tôi.
+                            <a asp-action="Index" asp-controller="Contact"><strong>Liên hệ ngay</strong></a>
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

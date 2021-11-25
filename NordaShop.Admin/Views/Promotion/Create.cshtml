@@ -1,0 +1,65 @@
+﻿@using NordaShop.Admin.Models.Promotion
+@model PromotionViewModel
+
+@{
+    ViewData["Title"] = "Create";
+    ViewData["PageName"] = "forms-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-block">
+    <h1 class="title"> Tạo phiếu giảm giá mới </h1>
+</div>
+<div class="col-md-12">
+    <div class="card card-block sameheight-item">
+        <form asp-action="Create" asp-controller="Promotion" method="post" enctype="multipart/form-data">
+            <div class="form-group has-success">
+                <div class="row">
+                    <div class="col-sm-6 form-group has-success">
+                        <label class="control-label">Mã giảm giá</label>
+                        <input type="text" asp-for="DiscountCode" class="form-control underlined">
+                        <span asp-validation-for="DiscountCode" class="has-success text-danger"></span>
+                    </div>
+                    <div class="col-sm-6 form-group has-success">
+                        <label class="control-label">Tỷ lệ giảm giá(%)</label>
+                        <input type="number" asp-for="DiscountPercent" class="form-control underlined">
+                        <span asp-validation-for="DiscountPercent" class="has-success text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-success">
+                <div class="row">
+                    <div class="col-sm-6 form-group has-success">
+                        <label class="control-label">Thời gian bắt đầu</label>
+                        <input type="datetime-local" asp-for="StartTime" class="form-control underlined">
+                    </div>
+                    <div class="col-sm-6 form-group has-success">
+                        <label class="control-label">Thời gian kết thúc</label>
+                        <input type="datetime-local" asp-for="ExpireTime" class="form-control underlined">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Mô tả ngắn</label>
+                <textarea rows="3" asp-for="Description" style="resize:none;" class="form-control underlined"></textarea>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Tùy chọn khác</label>
+                <div>
+                    <label>
+                        <input class="checkbox" asp-for="IsValid" type="checkbox">
+                        <span>Kích hoạt</span>
+                    </label>
+                    <label>
+                        <input class="checkbox" asp-for="IsShow" type="checkbox">
+                        <span>Hiển thị ra website</span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top:40px;">
+                <button type="submit" class="btn btn-primary">Tạo mới</button>
+            </div>
+        </form>
+    </div>
+</div>
+

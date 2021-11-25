@@ -1,0 +1,48 @@
+﻿@using NordaShop.WebApp.Models.Order
+@using Common.Helper
+@model List<OrderViewModel>
+
+@{
+    var format = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<div class="tab-pane fade show active" id="orders" role="tabpanel">
+    <div class="myaccount-content">
+        <h3>Orders</h3>
+        <div class="myaccount-table table-responsive text-center">
+            @if (Model != null && Model.Count > 0)
+            {
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Ngày đặt</th>
+                            <th>Trạng thái đơn hàng</th>
+                            <th>Thanh toán</th>
+                            <th>Tổng</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            var item = Model[i];
+                            <tr>
+                                <td>@(i+1)</td>
+                                <td>@item.Datecreated.ToString("HH:mm dd/MM/yyyy")</td>
+                                <td>@item.OrderStatus.GetDisplayName()</td>
+                                <td>@(item.IsPaid ? "Đã thanh toán" : "Chưa thanh toán")</td>
+                                <td>@(string.Format(format, "{0:c0}", item.TotalPrice))</td>
+                                <td><a asp-action="GetOrderItem" asp-controller="Order" asp-route-id="@item.Id" class="check-btn sqr-btn ">Chi tiết</a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>Bạn chưa có đơn đặt hàng nào.</p>
+            }
+        </div>
+    </div>
+</div>

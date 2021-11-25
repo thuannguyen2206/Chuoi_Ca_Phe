@@ -1,0 +1,36 @@
+﻿
+@{
+    ViewData["Title"] = "ConfirmResult";
+    ViewData["IsHome"] = false;
+    bool success = (bool)TempData["SuccessConfirm"];
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Kết quả xác nhận" })
+
+<div class="order-tracking-area pt-110 pb-120">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-6 col-lg-8 col-md-10 ms-auto me-auto">
+                <div class="order-tracking-content">
+                    @if (success)
+                    {
+                        <h2 style="text-align:center;color:red;">Thành công!</h2>
+                        <h3 style="text-align:center;"> Bạn đã xác nhận tài khoản thành công.</h3>
+                        <p>
+                            Cảm ơn bạn đã chọn dịch vụ của chúng tôi! Bây giờ, bạn có thể đăng nhập với <strong>NordaShop </strong> và mua những gì bạn thích.
+                            <a asp-action="SignIn" asp-controller="Account"><strong>Đăng nhập ngay</strong></a>
+                        </p>
+                    }
+                    else
+                    {
+                        <h2 style="text-align:center;color:red;">Ohh no! Đã xảy ra sự cố.</h2>
+                        <p>
+                            Chúng tôi không thể xác nhận tài khoản của bạn! HÃy thử đăng kí một tài khoản khác hoặc phản hồi vấn đề của bạn cho chúng tôi.
+                            <a asp-action="Index" asp-controller="Contact"><strong>Liên hệ ngay</strong></a>
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,95 @@
+﻿@using NordaShop.Admin.Models.User
+@model UserEditViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+    ViewData["PageName"] = "forms-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="subtitle-block">
+    <h3 class="subtitle"> Chỉnh sửa thông tin tài khoản </h3>
+</div>
+<section class="section">
+    <div class="row sameheight-container">
+        <div class="col-md-12">
+            <div class="card card-block sameheight-item">
+                <div class="title-block">
+                    <h3 class="title"> Thông tin </h3>
+                </div>
+                <form role="form" asp-action="Edit" asp-controller="User" method="post" enctype="multipart/form-data">
+                    <div class="form-group has-success" hidden>
+                        <label class="control-label">Id</label>
+                        <input type="text" asp-for="Id" class="form-control underlined">
+                    </div>
+                    <div class="form-group has-success">
+                        <div class="row">
+                            <div class="col-sm-6 form-group has-success">
+                                <label class="control-label">Họ</label>
+                                <input type="text" asp-for="LastName" class="form-control underlined">
+                                <span asp-validation-for="LastName" class="has-success text-danger"></span>
+                            </div>
+                            <div class="col-sm-6 form-group has-success">
+                                <label class="control-label">Tên</label>
+                                <input type="text" asp-for="FirstName" class="form-control underlined">
+                                <span asp-validation-for="FirstName" class="has-success text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group has-success">
+                        <label class="control-label">Tên đăng nhập</label>
+                        @if (Model.Username.Trim().ToLower().Equals("admin"))
+                        {
+                            <input type="text" asp-for="Username" class="form-control underlined" readonly>
+                        }
+                        else
+                        {
+                            <input type="text" asp-for="Username" class="form-control underlined">
+                        }
+                        <span asp-validation-for="Username" class="has-success text-danger"></span>
+                    </div>
+                    <div class="form-group has-success">
+                        <div class="row">
+                            <div class="col-sm-6 form-group has-success">
+                                <label class="control-label">Email</label>
+                                <input type="email" asp-for="Email" class="form-control underlined">
+                                <span asp-validation-for="Email" class="has-success text-danger"></span>
+                            </div>
+                            <div class="col-sm-6 form-group has-success">
+                                <label class="control-label">Số điện thoại</label>
+                                <input type="tel" asp-for="PhoneNumber" class="form-control underlined">
+                                <span asp-validation-for="PhoneNumber" class="has-success text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group has-success">
+                        <label class="control-label">Địa chỉ</label>
+                        <input type="text" asp-for="Address" class="form-control underlined">
+                        <span asp-validation-for="Address" class="has-success text-danger"></span>
+                    </div>
+                    @if (!Model.Username.Trim().ToLower().Equals("admin"))
+                    {
+                        <div class="form-group">
+                            <label>Tùy chọn khác</label>
+                            <div>
+                                <label>
+                                    <input class="checkbox" asp-for="IsActive" type="checkbox">
+                                    <span>Kích hoạt</span>
+                                </label>
+                                <label>
+                                    <input class="checkbox" asp-for="IsAdmin" type="checkbox">
+                                    <span>Đặt quyền admin</span>
+                                </label>
+                            </div>
+                        </div>
+                    }
+                    <div class="form-group" style="margin-top:40px;">
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+

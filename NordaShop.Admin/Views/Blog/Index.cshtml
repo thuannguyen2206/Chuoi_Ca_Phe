@@ -1,0 +1,127 @@
+﻿@using NordaShop.Admin.Models.Post
+@using Service.ApiResponse
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration _config
+@model PageResult<List<PostViewModel>>
+
+@{
+    ViewData["Title"] = "Index";
+    ViewData["PageName"] = "responsive-tables-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Scripts{
+    <script>
+        $(".example").on("click", ".remove-post", function () {
+            let postId = $(this).data("id");
+            if (postId > 0) {
+                swal({
+                    title: `Bạn thực sự muốn xóa?`,
+                    text: "Nếu đã xóa thì sẽ không khôi phục dữ liệu lại được nữa!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                }).then((result) => {
+                    if (result) {
+                        window.location.href = `/Blog/Delete/${postId}`;
+                    }
+                });
+            }
+        });
+    </script>
+}
+
+
+<div class="title-block">
+    <h1 class="title"> Danh sách bài viết </h1>
+</div>
+<section class="section">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-block">
+                    <div class="card-title-block">
+                        <form class="form-inline" asp-action="Index" asp-controller="Blog" method="get">
+                            <div class="row col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="items-search">
+                                            <div class="input-group">
+                                                <input type="text" name="keyword" value="@ViewBag.Keyword" class="form-control boxed rounded-s" placeholder="Search for...">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-secondary rounded-s" type="submit">
+                                                        <i class="fa fa-search"></i>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <a asp-action="Create" class="btn btn-pill-left btn-primary" style="float:right;">Tạo mới</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    @if (Model.Items.Count > 0)
+                    {
+                        <section class="example">
+                            <div class="table-flip-scroll">
+                                <table class="table table-striped table-bordered table-hover flip-content">
+                                    <thead class="flip-header">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Ảnh</th>
+                                            <th>Tiêu đề</th>
+                                            <th>Lượt xem</th>
+                                            <th>Bình luận</th>
+                                            <th>Ngày viết bài</th>
+                                            <th>Kích hoạt</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < Model.Items.Count; i++)
+                                        {
+                                            var item = Model.Items[i];
+                                            <tr>
+                                                <td>@(i+1)</td>
+                                                <td><img src="@(_config["BaseUri"] + item.LinkImage)" style="width:70px;height:70px;" atl="" /></td>
+                                                <td>@item.Title</td>
+                                                <td>@item.ViewCount</td>
+                                                <th><a asp-action="PostComments" asp-route-postid="@item.Id" title="Clink to view all comment" style="text-decoration:none;">@item.TotalComment Bình luận</a></th>
+                                                <td>@item.DateCreated.ToString("HH:mm dd/MM/yyyy")</td>
+                                                @if (item.IsActive)
+                                                {
+                                                    <td style="text-align:center;color:green;"><i class='fa fa-check form-control-feedback'></i></td>
+                                                }
+                                                else
+                                                {
+                                                    <td style="text-align:center;color:red;"><i class='fa fa-times form-control-feedback'></i></td>
+                                                }
+                                                <td>
+                                                    <a asp-action="Edit" asp-controller="Blog" asp-route-id="@item.Id" title="Edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+                                                </td>
+                                                <td>
+                                                    <a class="remove-post" href="#" data-id="@item.Id" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    }
+                    else
+                    {
+                        <h3>Không có bài viết nào</h3>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@await Component.InvokeAsync("Pager", Model)
+

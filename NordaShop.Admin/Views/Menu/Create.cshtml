@@ -1,0 +1,52 @@
+﻿@using NordaShop.Admin.Models.Menu
+@model MenuViewModel
+
+@{
+    ViewData["Title"] = "Create";
+    ViewData["PageName"] = "forms-page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="title-block">
+    <h1 class="title"> Tạo menu mới </h1>
+</div>
+<div class="col-md-12">
+    <div class="card card-block sameheight-item">
+        <form asp-action="Create" asp-controller="Menu" method="post" enctype="multipart/form-data">
+            <div class="form-group has-success">
+                <label class="control-label">Tên</label>
+                <input type="text" asp-for="Name" class="form-control underlined">
+                <span asp-validation-for="Name" class="has-success text-danger"></span>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Link</label>
+                <input type="text" asp-for="Link" class="form-control underlined">
+                <span asp-validation-for="Link" class="has-success text-danger"></span>
+            </div>
+            <div class="form-group has-success">
+                <label class="control-label">Seo alias</label>
+                <input type="text" asp-for="SeoAlias" class="form-control underlined">
+                <span asp-validation-for="SeoAlias" class="has-success text-danger"></span>
+            </div>
+            <div class="form-group has-success">
+                <div class="row">
+                    <div class="col-md-6 form-group has-success">
+                        <label class="control-label">Thứ tự hiển thị</label>
+                        <input type="number" asp-for="DisplayOrder" class="form-control underlined">
+                        <span asp-validation-for="DisplayOrder" class="has-success text-danger"></span>
+                    </div>
+                    <div class="col-md-6 form-group has-success">
+                        <label>
+                            <input class="checkbox" asp-for="IsActive" type="checkbox">
+                            <span>Kích hoạt</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" style="margin-top:40px;">
+                <button type="submit" class="btn btn-primary">Tạo mới</button>
+            </div>
+        </form>
+    </div>
+</div>
+

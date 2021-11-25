@@ -1,0 +1,66 @@
+﻿@using NordaShop.WebApp.Models.Account
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration _config
+@model SignUpViewModel
+@{
+    ViewData["Title"] = "Sign up";
+    ViewData["IsHome"] = false;
+}
+
+@section Scripts{
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+}
+
+@await Component.InvokeAsync("Breadcrumb", new { pagename = "Đăng kí" })
+
+<div class="login-register-area pt-115 pb-120">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7 col-md-12 ms-auto me-auto">
+                <div class="login-register-wrapper">
+                    <div class="login-register-tab-list nav">
+                        <a class="active" data-bs-toggle="tab" href="#">
+                            <h4> Đăng kí </h4>
+                        </a>
+                    </div>
+                    <div class="tab-content">
+                        <div class="tab-pane active">
+                            <div class="login-form-container">
+                                <div class="login-register-form">
+                                    <form asp-action="SignUp" asp-controller="Account" method="post" enctype="multipart/form-data">
+                                        <div>
+                                            <span asp-validation-for="Username" style="float:right;" class="text-danger"></span>
+                                            <input type="text" asp-for="Username" style="float:right;" placeholder="Username">
+                                        </div>
+                                        <div>
+                                            <span asp-validation-for="Email" style="float:right;" class="text-danger"></span>
+                                            <input type="email" asp-for="Email" placeholder="Email">
+                                        </div>
+                                        <div>
+                                            <span asp-validation-for="Password" style="float:right;" class="text-danger"></span>
+                                            <input type="password" asp-for="Password" placeholder="Password">
+                                        </div>
+                                        <div>
+                                            <span asp-validation-for="RePassword" style="float:right;" class="text-danger"></span>
+                                            <input type="password" asp-for="RePassword" placeholder="Re-Password">
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="g-recaptcha" data-sitekey="@(_config.GetValue<string>("ReCaptcha:ClientKey"))"></div>
+                                        </div>
+                                        <div class="button-box" style="margin-top:20px;">
+                                            <button type="submit">Đăng kí</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div style="font-size:17px;margin-top:50px;" class="login-register-tab-list nav">
+                                    Bạn đã có tài khoản?
+                                    <a asp-action="SignIn" asp-controller="Account"><strong> Đăng nhập ngay.</strong></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
